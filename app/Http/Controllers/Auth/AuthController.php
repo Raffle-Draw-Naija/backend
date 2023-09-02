@@ -21,14 +21,6 @@ class AuthController extends Controller
     /**
      * @OA\Post(
      *     path="/api/v1/user/register",
-     *     summary="Register User",
-     *     @OA\Parameter(
-     *         name="username",
-     *         in="query",
-     *         description="Username",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
      *     @OA\Parameter(
      *         name="password",
      *         in="query",
@@ -73,7 +65,7 @@ class AuthController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/v1/user/login",
+     *     path="/api/v1/admin/login",
      *     summary="Authenticate user and generate Sactum token",
      *     @OA\Parameter(
      *         name="username",

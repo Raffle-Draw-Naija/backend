@@ -1,24 +1,14 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "APIs For Thrift Store",
+        "title": "APIs For Raffle Draw",
         "version": "1.0.0"
     },
     "paths": {
         "/api/v1/user/register": {
             "post": {
-                "summary": "Register User",
                 "operationId": "de094d61f6eb5e69ff7e18946b41b9c9",
                 "parameters": [
-                    {
-                        "name": "username",
-                        "in": "query",
-                        "description": "Username",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
                     {
                         "name": "password",
                         "in": "query",
@@ -66,10 +56,10 @@
                 }
             }
         },
-        "/api/v1/user/login": {
+        "/api/v1/admin/login": {
             "post": {
                 "summary": "Authenticate user and generate Sactum token",
-                "operationId": "70ebec8f4816fa1062135b6c31e11f59",
+                "operationId": "863887bec4cf2e567cb458bd3f1ec3a6",
                 "parameters": [
                     {
                         "name": "username",
@@ -93,6 +83,57 @@
                 "responses": {
                     "200": {
                         "description": "Login successful"
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/winning-tags/create": {
+            "post": {
+                "operationId": "2d58826a3f94a2a732f7801efb283aea",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "Name of the winning tag",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "category_id",
+                        "in": "query",
+                        "description": "category_id: 1 = Riders, 2 = Machines, 3 = Tools ",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "stake_price",
+                        "in": "query",
+                        "description": "stake_price",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "image",
+                        "in": "query",
+                        "description": "image must be in base64",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Registration successful"
                     },
                     "401": {
                         "description": "Invalid credentials"

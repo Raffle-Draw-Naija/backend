@@ -20,14 +20,16 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::namespace('App\Http\Controllers')->group(function () {
-    Route::group(['prefix' => 'v1/user'], function () {
+    Route::group(['prefix' => 'v1/admin'], function () {
         Route::post('/login', ['App\Http\Controllers\Auth\AuthController', 'login']);
         Route::get('/register-user', ['App\Http\Controllers\Auth\AuthController', 'registerUser']);
         Route::get('/test', ['App\Http\Controllers\Auth\AuthController', 'test']);
 
         Route::group(['middleware' => ['auth:sanctum']], function ()
         {
-            Route::get('/register', ['App\Http\Controllers\Auth\AuthController', 'register']);
+            Route::get('/category/create', ['App\Http\Controllers\CategoriesController', 'store']);
+            Route::get('/sub-category/create', ['App\Http\Controllers\SubCategoryController', 'store']);
+            Route::get('/winning-tags/create', ['App\Http\Controllers\WinningTagsController', 'store']);
 
         });
     });
