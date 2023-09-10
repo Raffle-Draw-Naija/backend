@@ -19,6 +19,7 @@ use App\Http\Controller\CustomerStakeController;
 //     return $request->user();
 // });
 Route::get('/retrieve', ['App\Http\Controllers\CustomerStakeController', 'index']);
+Route::post('/customerstake/add', ['App\Http\Controllers\CustomerStakeController', 'store']);
 //Route::get('retrieve', [CustomerStakeController::class, 'index']);
 
 Route::namespace('App\Http\Controllers')->group(function () {

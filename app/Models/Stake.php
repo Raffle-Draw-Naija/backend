@@ -11,4 +11,16 @@ class Stake extends Model
 
     protected $table="customers_stakes";
 
+    protected $fillable = [
+        
+        'user_id',
+        'ticket_id',
+        'sub_cat_id',
+        'stake_price',
+        'stake_number',
+        'win',
+        'month',
+        'year'
+        
+    ];
 }

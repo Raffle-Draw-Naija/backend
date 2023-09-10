@@ -29,7 +29,33 @@ class CustomerStakeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'user_id'=>'required|max:191',
+            'ticket_id'=>'required|max:191',
+            'sub_cat_id'=>'required|max:191',
+            'stake_price'=>'required|max:191',
+            'stake_number'=>'required|max:191',
+            'win'=>'required|max:191',
+            'month'=>'required|max:191',
+            'year'=>'required|max:191'
+        ]);
+
+
+
+
+        $Stake = New  Stake;
+        $Stake->user_id = $request->user_id;
+        $Stake->ticket_id = $request->ticket_id;
+        $Stake->sub_cat_id = $request->sub_cat_id;
+        $Stake->stake_price = $request->stake_price;
+        $Stake->stake_number = $request->stake_number;
+        $Stake->win = $request->win;
+        $Stake->month = $request->month;
+        $Stake->year = $request->year;
+        $Stake->save();
+        return response()->json(['massage'=> 'Customer stake add successfully'], 200);
+        
+
     }
 
     /**
