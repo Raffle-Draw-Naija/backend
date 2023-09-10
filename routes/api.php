@@ -21,6 +21,7 @@ use App\Http\Controller\CustomerStakeController;
 Route::get('/retrieve', ['App\Http\Controllers\CustomerStakeController', 'index']);
 Route::post('/customerstake/add', ['App\Http\Controllers\CustomerStakeController', 'store']);
 Route::get('/winning-tags/list', ['App\Http\Controllers\WinningTagsController', 'index']);
+Route::get('/categories/list', ['App\Http\Controllers\CategoriesController', 'index']);
 //Route::get('retrieve', [CustomerStakeController::class, 'index']);
 
 Route::namespace('App\Http\Controllers')->group(function () {
