@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controller\CustomerStakeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,7 +18,8 @@ use Illuminate\Support\Facades\Route;
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
-
+Route::get('/retrieve', ['App\Http\Controllers\CustomerStakeController', 'index']);
+//Route::get('retrieve', [CustomerStakeController::class, 'index']);
 
 Route::namespace('App\Http\Controllers')->group(function () {
     Route::group(['prefix' => 'v1/admin'], function () {
@@ -29,7 +31,7 @@ Route::namespace('App\Http\Controllers')->group(function () {
         {
             Route::get('/category/create', ['App\Http\Controllers\CategoriesController', 'store']);
             Route::get('/sub-category/create', ['App\Http\Controllers\SubCategoryController', 'store']);
-            Route::get('/winning-tags/create', ['App\Http\Controllers\WinningTagsController', 'store']);
+            Route::post('/winning-tags/create', ['App\Http\Controllers\WinningTagsController', 'store']);
 
         });
     });
