@@ -20,6 +20,7 @@ use App\Http\Controller\CustomerStakeController;
 // });
 Route::get('/retrieve', ['App\Http\Controllers\CustomerStakeController', 'index']);
 Route::post('/customerstake/add', ['App\Http\Controllers\CustomerStakeController', 'store']);
+Route::get('/winning-tags/list', ['App\Http\Controllers\WinningTagsController', 'index']);
 //Route::get('retrieve', [CustomerStakeController::class, 'index']);
 
 Route::namespace('App\Http\Controllers')->group(function () {
@@ -33,6 +34,7 @@ Route::namespace('App\Http\Controllers')->group(function () {
             Route::get('/category/create', ['App\Http\Controllers\CategoriesController', 'store']);
             Route::get('/sub-category/create', ['App\Http\Controllers\SubCategoryController', 'store']);
             Route::post('/winning-tags/create', ['App\Http\Controllers\WinningTagsController', 'store']);
+            
 
         });
     });
