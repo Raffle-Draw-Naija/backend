@@ -15,7 +15,8 @@ class WinningTagsController extends Controller
      */
     public function index()
     {
-
+        $WinningTags = WinningTags::all();
+        return response()->json(['WinningTags'=>$WinningTags], 200);
     }
 
     /**
