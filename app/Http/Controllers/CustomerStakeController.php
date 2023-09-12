@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Utils\Utils;
 use App\Models\Stake;
+use Illuminate\Http\Request;
 
 class CustomerStakeController extends Controller
 {
@@ -12,8 +13,8 @@ class CustomerStakeController extends Controller
      */
     public function index()
     {
-         $Stake = Stake::all();
-         return response()->json(['Stake'=>$Stake]);
+        $Stake = Stake::all();
+        return response()->json(['Stake' => $Stake]);
     }
 
     /**
@@ -27,23 +28,23 @@ class CustomerStakeController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request, Utils $utils)
     {
         $request->validate([
-            'user_id'=>'required|max:191',
-            'ticket_id'=>'required|max:191',
-            'sub_cat_id'=>'required|max:191',
-            'stake_price'=>'required|max:191',
-            'stake_number'=>'required|max:191',
-            'win'=>'required|max:191',
-            'month'=>'required|max:191',
-            'year'=>'required|max:191'
+            'user_id' => 'required|max:191',
+            'ticket_id' => 'required|max:191',
+            'sub_cat_id' => 'required|max:191',
+            'stake_price' => 'required|max:191',
+            'stake_number' => 'required|max:191',
+            'win' => 'required|max:191',
+            'month' => 'required|max:191',
+            'year' => 'required|max:191'
         ]);
 
 
 
 
-        $Stake = New  Stake;
+        $Stake = new  Stake;
         $Stake->user_id = $request->user_id;
         $Stake->ticket_id = $request->ticket_id;
         $Stake->sub_cat_id = $request->sub_cat_id;
@@ -53,9 +54,7 @@ class CustomerStakeController extends Controller
         $Stake->month = $request->month;
         $Stake->year = $request->year;
         $Stake->save();
-        return response()->json(['massage'=> 'Customer stake add successfully'], 200);
-        
-
+        return $utils->message("Customer stake add successfully", $Stake, 200);
     }
 
     /**
