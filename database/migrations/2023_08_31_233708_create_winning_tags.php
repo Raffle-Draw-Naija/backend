@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string("name");
             $table->string("stake_price");
+            $table->string("type"); 
             $table->unsignedBigInteger("category_id");
             $table->string("artisan_category")->default("No Category");
             $table->unsignedBigInteger("sub_cat_id");
