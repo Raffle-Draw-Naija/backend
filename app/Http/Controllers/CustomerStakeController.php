@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\StakeResource;
 use App\Utils\Utils;
 use App\Models\Stake;
 use Illuminate\Http\Request;
@@ -61,10 +62,13 @@ class CustomerStakeController extends Controller
 
     /**
      * Display the specified resource.
+     * 
      */
-    public function show(string $id)
+    public function show(Stake $stake)
     {
         //
+        return new StakeResource($stake);
+
     }
 
     /**
