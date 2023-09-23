@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Utils\Utils;
 use App\Models\Stake;
 use Illuminate\Http\Request;
+use App\Models\WinningTags;
+
 
 class CustomerStakeController extends Controller
 {
@@ -44,7 +46,7 @@ class CustomerStakeController extends Controller
 
 
 
-        $Stake = new  Stake;
+        $Stake = new Stake;
         $Stake->user_id = $request->user_id;
         $Stake->ticket_id = $request->ticket_id;
         $Stake->sub_cat_id = $request->sub_cat_id;
@@ -79,6 +81,27 @@ class CustomerStakeController extends Controller
     public function update(Request $request, string $id)
     {
         //
+    }
+
+    public function customers_by_filter(Request $request)
+    {
+        //
+        $winningTags = $request->input('win');
+        $category = $request->input('category');
+        $query = Stake::query();
+
+        if ($winningTags) {
+            $query->where('win', $winningTags);
+        }
+
+        if ($category) {
+            $query->where('sub_cat_id', $category);
+        }
+
+        $customerStakes = $query->get();
+
+        return response()->json($customerStakes);
+
     }
 
     /**
