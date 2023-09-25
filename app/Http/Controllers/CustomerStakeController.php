@@ -107,7 +107,14 @@ class CustomerStakeController extends Controller
         return response()->json($customerStakes);
 
     }
-
+    /**
+     * Total number of Customer stakes.
+     */
+    public function getTotalStakes()
+    {
+        $totalStakes = Stake::count();
+        return response()->json(['total_stakes' => $totalStakes]);
+    }
     /**
      * Remove the specified resource from storage.
      */

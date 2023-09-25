@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\WinningTageResources;
 use App\Utils\Utils;
 use App\Models\Categories;
 use App\Models\WinningTags;
@@ -75,8 +76,8 @@ class WinningTagsController extends Controller
         ]);
         $res = $utils->convertImageToBase64($request, $request->get("image"));
         $utils->uploadImage($res["imageName"], $res["image"]);
-        $category =  WinningTags::create($request->all());
-        return  $utils->message("success", $category, 200);
+        $category = WinningTags::create($request->all());
+        return $utils->message("success", $category, 200);
     }
 
     /**
@@ -85,6 +86,7 @@ class WinningTagsController extends Controller
     public function show(WinningTags $winningTags)
     {
         //
+        return new WinningTageResources($winningTags);
     }
 
     /**
