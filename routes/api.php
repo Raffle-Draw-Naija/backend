@@ -19,6 +19,7 @@ use App\Http\Controller\CustomerStakeController;
 //     return $request->user();
 // });
 //Route::get('/win/list', ['App\Http\Controllers\WinListController', 'index']);
+Route::get('/stacknumber/list', ['App\Http\Controllers\StakeNumbersController', 'index']);
 Route::get('/win/{win}/list', ['App\Http\Controllers\WinListController', 'show']);
 Route::post('/newcustomer/add', ['App\Http\Controllers\NewCustomerController', 'store']);
 Route::get('/retrieve', ['App\Http\Controllers\CustomerStakeController', 'index']);
