@@ -18,6 +18,9 @@ use App\Http\Controller\CustomerStakeController;
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
+//Route::get('/win/list', ['App\Http\Controllers\WinListController', 'index']);
+Route::get('/win/{win}/list', ['App\Http\Controllers\WinListController', 'show']);
+Route::post('/newcustomer/add', ['App\Http\Controllers\NewCustomerController', 'store']);
 Route::get('/retrieve', ['App\Http\Controllers\CustomerStakeController', 'index']);
 Route::post('/customerstake/add', ['App\Http\Controllers\CustomerStakeController', 'store']);
 Route::get('/winning-tags/list', ['App\Http\Controllers\WinningTagsController', 'index']);
