@@ -28,21 +28,27 @@ Route::get('/winning-tags/list', ['App\Http\Controllers\WinningTagsController', 
 
 // this is the part that is listing all categorie
 Route::get('/categories/list', ['App\Http\Controllers\CategoriesController', 'index']);
+
 //Route::get('retrieve', [CustomerStakeController::class, 'index']);
 
-Route::namespace('App\Http\Controllers')->group(function () {
-    Route::group(['prefix' => 'v1/admin'], function () {
-        Route::post('/login', ['App\Http\Controllers\Auth\AuthController', 'login']);
-        Route::get('/register-user', ['App\Http\Controllers\Auth\AuthController', 'registerUser']);
-        Route::get('/test', ['App\Http\Controllers\Auth\AuthController', 'test']);
+Route::
+        namespace('App\Http\Controllers')->group(function () {
+            Route::group(['prefix' => 'v1/admin'], function () {
+                Route::post('/login', ['App\Http\Controllers\Auth\AuthController', 'login']);
+                Route::get('/register-user', ['App\Http\Controllers\Auth\AuthController', 'registerUser']);
+                Route::get('/test', ['App\Http\Controllers\Auth\AuthController', 'test']);
 
-        Route::group(['middleware' => ['auth:sanctum']], function ()
-        {
-            Route::get('/category/create', ['App\Http\Controllers\CategoriesController', 'store']);
-            Route::get('/sub-category/create', ['App\Http\Controllers\SubCategoryController', 'store']);
-            Route::post('/winning-tags/create', ['App\Http\Controllers\WinningTagsController', 'store']);
-            
-
+                Route::group(['middleware' => ['auth:sanctum']], function () {
+                    Route::get('/category/create', ['App\Http\Controllers\CategoriesController', 'store']);
+                    Route::get('/sub-category/create', ['App\Http\Controllers\SubCategoryController', 'store']);
+                    Route::post('/winning-tags/create', ['App\Http\Controllers\WinningTagsController', 'store']);
+                    Route::get('/customer-stake', ['App\Http\Controllers\CustomerStakeController', 'index']);
+                    Route::get('/customer-stakefilter', ['App\Http\Controllers\CustomerStakeController', 'customers_by_filter']);
+                    Route::get('/customer-stake', ['App\Http\Controllers\CustomerStakeController', 'show']);
+                    Route::get('/customer-stake/totalstake', ['App\Http\Controllers\CustomerStakeController', 'getTotalStakes']);
+                    Route::post('/customer-stake/add', ['App\Http\Controllers\CustomerStakeController', 'store']);
+                    Route::get('/winning-tags', ['App\Http\Controllers\WinningTagsController', 'index']);
+                    Route::get('/categories', ['App\Http\Controllers\CategoriesController', 'index']);
+                });
+            });
         });
-    });
-});
