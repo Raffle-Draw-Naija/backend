@@ -11,12 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sub_categories', function (Blueprint $table) {
+        Schema::create('stake_numbers', function (Blueprint $table) {
             $table->id();
-            $table->string("name");
-            $table->string("sub_type");
-            $table->unsignedBigInteger("category_id");
-            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
+            $table->id('stake_nos');
             $table->timestamps();
         });
     }
@@ -26,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('artisan_sub_category');
+        Schema::dropIfExists('stake_numbers');
     }
 };
