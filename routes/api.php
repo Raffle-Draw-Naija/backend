@@ -26,6 +26,7 @@ Route::get('/retrieve', ['App\Http\Controllers\CustomerStakeController', 'index'
 Route::post('/customerstake/add', ['App\Http\Controllers\CustomerStakeController', 'store']);
 Route::get('/winning-tags/list', ['App\Http\Controllers\WinningTagsController', 'index']);
 
+
 // this is the part that is listing all categorie
 Route::get('/categories/list', ['App\Http\Controllers\CategoriesController', 'index']);
 
