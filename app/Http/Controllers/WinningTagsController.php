@@ -17,7 +17,7 @@ class WinningTagsController extends Controller
     public function index(Utils $utils)
     {
         $winningTags = WinningTags::all();
-        return $utils->message("Customer stake add successfully", $winningTags, 200);
+        return $utils->message("Success", $winningTags, 200);
     }
 
     /**

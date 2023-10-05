@@ -177,9 +177,9 @@ return [
                 */
 
                 /* Open API 3.0 support
-                'passport' => [ // Unique name of security
+                'passports' => [ // Unique name of security
                     'type' => 'oauth2', // The type of the security scheme. Valid values are "basic", "apiKey" or "oauth2".
-                    'description' => 'Laravel passport oauth2 security.',
+                    'description' => 'Laravel passports oauth2 security.',
                     'in' => 'header',
                     'scheme' => 'https',
                     'flows' => [
@@ -210,7 +210,7 @@ return [
                         'write'
                     ],
 
-                    'passport' => []
+                    'passports' => []
                     */
                 ],
             ],
