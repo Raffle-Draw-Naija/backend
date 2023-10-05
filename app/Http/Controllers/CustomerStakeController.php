@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\StakeResource;
+use App\Models\User;
 use App\Utils\Utils;
 use App\Models\Stake;
 use Illuminate\Http\Request;
@@ -41,28 +42,37 @@ class CustomerStakeController extends Controller
             'stake_number' => 'required|max:191',
             'win' => 'required|max:191',
             'month' => 'required|max:191',
-            'year' => 'required|max:191'
+            'year' => 'required|max:191',
+            'customer_id' => 'required|integer',
+            'winning_tags_id' => 'required|integer',
+            'category_id' => 'required|integer'
         ]);
 
+        if(User::where("id", $request->get("user_id"))->exists()){
+            $Stake = new Stake;
+            $Stake->user_id = $request->user_id;
+            $Stake->ticket_id = $request->ticket_id;
+            $Stake->sub_cat_id = $request->sub_cat_id;
+            $Stake->stake_price = $request->stake_price;
+            $Stake->stake_number = $request->stake_number;
+            $Stake->win = $request->win;
+            $Stake->month = $request->month;
+            $Stake->year = $request->year;
+            $Stake->customer_id = $request->customer_id;
+            $Stake->winning_tags_id = $request->winning_tags_id;
+            $Stake->category_id = $request->category_id;
+            $Stake->save();
+            return $utils->message("success", $Stake, 200);
 
+        }else{
+            return $utils->message("error", "User Not Found", 404);
 
-
-        $Stake = new Stake;
-        $Stake->user_id = $request->user_id;
-        $Stake->ticket_id = $request->ticket_id;
-        $Stake->sub_cat_id = $request->sub_cat_id;
-        $Stake->stake_price = $request->stake_price;
-        $Stake->stake_number = $request->stake_number;
-        $Stake->win = $request->win;
-        $Stake->month = $request->month;
-        $Stake->year = $request->year;
-        $Stake->save();
-        return $utils->message("Customer stake add successfully", $Stake, 200);
+        }
     }
 
     /**
      * Display the specified resource.
-     * 
+     *
      */
     public function show(Stake $stake)
     {

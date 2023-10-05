@@ -30,7 +30,7 @@ class CategoriesController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, Utils $utils): JsonResponse
+    public function store(Request $request, Utils $utils)
     {
         $request->validate([
             "name" => "required"

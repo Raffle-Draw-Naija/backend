@@ -22,11 +22,8 @@ class NewCustomerController extends Controller
         $newcustomer = new NewCustomer;
         $newcustomer->first_name = $request->first_name;
         $newcustomer->last_name = $request->last_name;
-        $newcustomer->identity = $request->identity;
-        $newcustomer->verified = $request->verified;
         $newcustomer->phone = $request->phone;
-        $newcustomer->username = $request->username;
-        $newcustomer->password = $request->password;
+        $newcustomer->user_id = $request->user_id;
         $newcustomer->save();
         return response()->json(['message'=>'New Customer Added Successfully'], 200);
 

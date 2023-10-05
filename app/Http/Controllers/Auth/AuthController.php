@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Models\NewCustomer;
 use App\Models\User;
 use App\Utils\Utils;
 use Illuminate\Support\Facades\Auth;
@@ -53,12 +54,24 @@ class AuthController extends Controller
      *     @OA\Response(response="401", description="Invalid credentials")
      * )
      */
-    public function registerUser(UserRequest $userRequest, Utils $utils): JsonResponse
+    public function registerUser(UserRequest $userRequest, Utils $utils)
     {
 
         $identity = Str::random(50);
-        $userRequest->request->add(["password" => Hash::make($userRequest->get("password"))]);
-        $user = User::create(array_merge($userRequest->all(), ['identity' => $identity, 'verified' => 1]));
+        $user = new User;
+        $user->username = $userRequest->get("username");
+        $user->password = Hash::make($userRequest->get("password"));
+        $user->identity = $identity;
+        $user->verified = 0;
+        $user->save();
+
+        $customer = new NewCustomer;
+        $customer->first_name =  $userRequest->get("first_name");
+        $customer->last_name  = $userRequest->get("last_name");
+        $customer->phone = $userRequest->get("phone");
+        $customer->user_id = $user->id;
+        $customer->save();
+
         return $utils->message("success", $user, 200);
     }
 

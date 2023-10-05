@@ -11,13 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('customers', function (Blueprint $table) {
+        Schema::create('customers_stakes', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger("user_id");
-            $table->string('first_name');
-            $table->string('last_name');
-            $table->string('phone');
-            $table->string('email')->nullable();
+            $table->unsignedBigInteger('user_id');
+            $table->string('ticket_id');
+            $table->integer('sub_cat_id');
+            $table->integer('stake_price');
+            $table->integer('stake_number');
+            $table->integer('win');
+            $table->integer('month');
+            $table->integer('year');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
@@ -28,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('customers');
+        Schema::dropIfExists('stakes');
     }
 };
