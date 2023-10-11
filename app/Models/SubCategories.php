@@ -20,4 +20,6 @@ class SubCategories extends Model
     {
         return $this->hasMany(Stake::class, "user_id", "id");
     }
+
+
 }
