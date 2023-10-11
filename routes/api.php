@@ -52,7 +52,10 @@ Route::
                     Route::post('/customer/add', ['App\Http\Controllers\NewCustomerController', 'store']);
                     Route::get('/customer/stakes', ['App\Http\Controllers\CustomerStakeController', 'index']);
                     Route::post('/customer/stake/add', ['App\Http\Controllers\CustomerStakeController', 'store']);
-                    Route::post('/customer/stake/get-user-stakes/{userId}', ['App\Http\Controllers\CustomerStakeController', 'getUserStakes']);
+                    Route::get('/customer/stake/get-user-stakes/{userId}', ['App\Http\Controllers\CustomerStakeController', 'getUserStakes']);
+
+
+                    Route::get('/subcategories', ['App\Http\Controllers\SubCategories', 'show']);
                 });
             });
         });

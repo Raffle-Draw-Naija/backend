@@ -35,22 +35,26 @@ class SubCategoryController extends Controller
             "name" => "required",
             "category_id" => "required"
         ]);
-        $category =  SubCategories::create($request->all());
-        return  $utils->message("success", $category, 200);
+        $category = SubCategories::create($request->all());
+        return $utils->message("success", $category, 200);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(SubCategory $subCategory)
+    public function show(SubCategories $subCategory)
     {
         //
+        {
+            $subcategories = SubCategories::all();
+            return response()->json(['subcategories' => $subcategories]);
+        }
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(SubCategory $subCategory)
+    public function edit(SubCategories $subCategory)
     {
         //
     }
@@ -58,7 +62,7 @@ class SubCategoryController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, SubCategory $subCategory)
+    public function update(Request $request, SubCategories $subCategory)
     {
         //
     }
@@ -66,7 +70,7 @@ class SubCategoryController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(SubCategory $subCategory)
+    public function destroy(SubCategories $subCategory)
     {
         //
     }
