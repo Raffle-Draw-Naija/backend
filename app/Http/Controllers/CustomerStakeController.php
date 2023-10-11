@@ -48,7 +48,7 @@ class CustomerStakeController extends Controller
             'category_id' => 'required|integer'
         ]);
 
-        if(User::where("id", $request->get("user_id"))->exists()){
+        if (User::where("id", $request->get("user_id"))->exists()) {
             $Stake = new Stake;
             $Stake->user_id = $request->user_id;
             $Stake->ticket_id = $request->ticket_id;
@@ -64,7 +64,7 @@ class CustomerStakeController extends Controller
             $Stake->save();
             return $utils->message("success", $Stake, 200);
 
-        }else{
+        } else {
             return $utils->message("error", "User Not Found", 404);
 
         }
@@ -124,6 +124,14 @@ class CustomerStakeController extends Controller
     {
         $totalStakes = Stake::count();
         return response()->json(['total_stakes' => $totalStakes]);
+    }
+    public function getUserStakes($userId)
+    {
+        $userStakes = Stake::where('user_id', $userId)
+            ->get();
+
+        return response()
+            ->json(['user_stakes' => $userStakes]);
     }
     /**
      * Remove the specified resource from storage.
