@@ -19,7 +19,6 @@ class Utils
         $image = preg_replace('/data:image\/(.*?);base64,/','',$image); // remove the type part
         $image = str_replace(' ', '+', $image);
         $imageName = 'images/image_' . time() . '.' . $image_extension[1]; //generating unique file name;
-        $request->request->add(["image" => $imageName]);
         return [
                 "image" =>  $image,
                 "imageName" => $imageName
@@ -28,6 +27,11 @@ class Utils
 
     public function uploadImage($imageName, $image)
     {
-        Storage::disk('public')->put($imageName,base64_decode($image));
+        $storageSuccess  =  Storage::disk('public')->put($imageName,base64_decode($image));
+        if($storageSuccess) {
+            return Storage::disk('public')->url($imageName);
+        } else {
+            return response('Failed to store the image', 500);
+        }
     }
 }

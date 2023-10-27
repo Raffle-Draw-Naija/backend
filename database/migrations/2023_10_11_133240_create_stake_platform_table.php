@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('win_numbers', function (Blueprint $table) {
+        Schema::create('stake_platforms', function (Blueprint $table) {
             $table->id();
-            $table->string('win_num');
-            $table->unsignedBigInteger("category_id");
-            $table->unsignedBigInteger("winning_tag_id");
-            $table->foreign('winning_tag_id')->references('id')->on('winning_tags')->onDelete('cascade');
+            $table->unsignedBigInteger('category_id');
+            $table->unsignedBigInteger('winning_tags_id');
+            $table->integer('month');
+            $table->integer('year');
+            $table->integer('is_open')->default(1);
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
-            $table->string('month');
-            $table->string('year');
+            $table->foreign('winning_tags_id')->references('id')->on('winning_tags')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('win_numbers');
+        Schema::dropIfExists('stake_platform');
     }
 };

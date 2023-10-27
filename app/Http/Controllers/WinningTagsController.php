@@ -75,7 +75,9 @@ class WinningTagsController extends Controller
             "image" => "required"
         ]);
         $res = $utils->convertImageToBase64($request, $request->get("image"));
-        $utils->uploadImage($res["imageName"], $res["image"]);
+        $img_link = $utils->uploadImage($res["imageName"], $res["image"]);
+        $request->request->add(["image" => $img_link]);
+
         $category = WinningTags::create($request->all());
         return $utils->message("success", $category, 200);
     }

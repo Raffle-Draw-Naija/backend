@@ -7,6 +7,9 @@
     "paths": {
         "/api/v1/user/register": {
             "post": {
+                "tags": [
+                    "Mobile"
+                ],
                 "operationId": "de094d61f6eb5e69ff7e18946b41b9c9",
                 "parameters": [
                     {

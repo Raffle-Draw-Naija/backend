@@ -22,6 +22,7 @@ class AuthController extends Controller
     /**
      * @OA\Post(
      *     path="/api/v1/user/register",
+     *      tags={"Mobile"},
      *     @OA\Parameter(
      *         name="password",
      *         in="query",

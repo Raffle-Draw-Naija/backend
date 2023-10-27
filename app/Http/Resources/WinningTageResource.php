@@ -5,21 +5,9 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class WinningTageResources extends JsonResource
+class WinningTageResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     * name of the customer,
-*stake price,
-*winning tag,
-*category,
-*date,
-*ticket id
-*win
 
-     */
     public function toArray(Request $request): array
     {
         return [
