@@ -4,33 +4,24 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Carbon;
 
 class StakeResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     * name of the customer,
-*stake price,
-*winning tag,
-*category,
-*date,
-*ticket id
-*win
 
-     */
     public function toArray(Request $request): array
     {
         return [
-            'customer_id' => $this->user_id,
-            'ticket_id' => $this->ticket_id,
-            'category' => $this->sub_cat_id,
+            'category' => $this->categories->name,
             'month' => $this->month,
             'year' => $this->year,
             'win' => $this->win,
-            'stake_price' => $this->stake_price,
-
+            'winningTags' => $this->winningTags->name,
+            'stakePrice' => $this->stake_price,
+            'ticketId' => $this->ticket_id,
+            'date' => Carbon::parse($this->created_at)->format("d M, Y") ,
+            'numberPicked' => $this->stake_number,
+            'payment_method' => $this->payment_method,
         ];
     }
 }

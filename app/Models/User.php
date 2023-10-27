@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
@@ -28,6 +29,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'verify_code'
     ];
 
     /**
@@ -43,5 +45,11 @@ class User extends Authenticatable
     public function bankAccount(): HasOne
     {
         return $this->hasOne('App\Models\BankAccount');
+    }
+
+
+    public function customerTransactions(): HasMany
+    {
+        return $this->hasMany('App\Models\CustomerTransactionHistory', "user_id");
     }
 }

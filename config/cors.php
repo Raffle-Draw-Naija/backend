@@ -19,9 +19,9 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => ['*','https://raffle-draw.name.ng', 'http://raffle-draw.name.ng'],
 
-    'allowed_origins_patterns' => [],
+    'allowed_origins_patterns' => ['/https?:\/\/raffle-draw\.com.ng\/?\z/'],
 
     'allowed_headers' => ['*'],
 

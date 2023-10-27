@@ -11,7 +11,7 @@ class Categories extends Model
     use HasFactory;
     // this is the part that is listing all the categories
     protected $guarded = [];
-    protected $table = 'Categories';
+    protected $table = 'categories';
     protected $fillable = [
 
         'id',
@@ -26,7 +26,16 @@ class Categories extends Model
      */
     public function categoryStakes(): HasMany
     {
-        return $this->hasMany(Stake::class, "user_id", "id");
+        return $this->hasMany(Stake::class, "category_id", "id");
     }
 
+    public function winningTags(): HasMany
+    {
+        return $this->hasMany(WinningTags::class, "category_id", "id");
+    }
+
+    public function stake_platform(): HasMany
+    {
+        return $this->hasMany(WinningTags::class, "winning_tags_id", "id");
+    }
 }

@@ -9,8 +9,15 @@ use Illuminate\Http\Request;
 
 class CategoriesController extends Controller
 {
+
     /**
-     * Display a listing of the resource.
+     * @OA\Get(
+     *     path="/api/v1/admin/categories",
+     *     summary="Get all Categories",
+     *     tags={"Admin"},
+     *     @OA\Response(response="200", description="Get all Categories"),
+     *     @OA\Response(response="401", description="Invalid credentials")
+     * )
      */
     public function index()
     {
@@ -28,7 +35,13 @@ class CategoriesController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @OA\Get(
+     *     path="/api/v1/admin/category/create",
+     *     summary="Create New Categories",
+     *     tags={"Admin"},
+     *     @OA\Response(response="200", description="Create New Categories"),
+     *     @OA\Response(response="401", description="Invalid credentials")
+     * )
      */
     public function store(Request $request, Utils $utils)
     {

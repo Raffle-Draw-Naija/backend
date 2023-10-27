@@ -2,53 +2,48 @@
 
 namespace App\Http\Controllers;
 
+use App\Utils\Utils;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\NewCustomer;
 
 class NewCustomerController extends Controller
 {
-    public function store(Request $request){
+    /**
+     * @OA\Post(
+     *     path="/api/v1/customer/update/name",
+     *     summary="Get Dashboard Items",
+     *     tags={"Mobile"},
+     *     @OA\Parameter(
+     *         name="user_id",
+     *         in="query",
+     *         description="Id of the User",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="name",
+     *         in="query",
+     *         description="Name of the User",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
 
+     *     @OA\Response(response="200", description="Update user name"),
+     *     @OA\Response(response="401", description="Invalid credentials")
+     * )
+     */
+    public function updateName(Request $request, Utils $utils): JsonResponse
+    {
         $request->validate([
-            'first_name'=>'required|max:191',
-            'last_name'=>'required|max:191',
-            'identity'=>'required|max:191',
-            'verified'=>'required|max:191',
-            'phone'=>'required|max:191',
-            'username'=>'required|max:191',
-            'password'=>'required|max:191'
+            "user_id" => "required",
+            "name" => "required",
         ]);
 
-        $newcustomer = new NewCustomer;
-        $newcustomer->first_name = $request->first_name;
-        $newcustomer->last_name = $request->last_name;
-        $newcustomer->phone = $request->phone;
-        $newcustomer->user_id = $request->user_id;
-        $newcustomer->save();
-        return response()->json(['message'=>'New Customer Added Successfully'], 200);
+        $user = NewCustomer::firstOrFail($request->get("user_id"));
+        $user->name = $request->get("name");
+        $user->update();
+        return  $utils->message("success", "Name Updated Successfully...", 200);
 
     }
-
 }
-
-/**class NewCustomerController2 extends Controller
-{
-    public function store(Request $request){
-
-        $request->validate([
-            'first_name'=>'required|max:191',
-            'last_name'=>'required|max:191',
-            'phone'=>'required|max:191',
-        ]);
-
-        $newcustomer = new NewCustomer;
-        $newcustomer->first_name = $request->first_name;
-        $newcustomer->last_name = $request->last_name;
-        $newcustomer->phone = $request->phone;
-        $newcustomer->save();
-        return response()->json(['message'=>'New Customer Added Successfully'], 200);
-
-    }
-
-}
-**/

@@ -61,43 +61,66 @@ Route::
         });
 Route::namespace('App\Http\Controllers')->group(function () {
 
-    Route::post('/login', ['App\Http\Controllers\Auth\AuthController', 'login']);
-    Route::get('/winning-tags', ['App\Http\Controllers\WinningTagsController', 'index']);
-
+    Route::group(['prefix' => '/v1'], function () {
+        Route::post('/login', ['App\Http\Controllers\Auth\AuthController', 'login']);
+        Route::get('/winning-tags', ['App\Http\Controllers\WinningTagsController', 'index']);
+        Route::get('/categories', ['App\Http\Controllers\CategoriesController', 'index']);
+        Route::post('/winning-tags', ['App\Http\Controllers\WinningTagsController', 'index']);
+        Route::get('/winning-tags/{i}', ['App\Http\Controllers\WinningTagsController', 'getTag']);
+        Route::get('/get-tools', ['App\Http\Controllers\WinningTagsController', 'getTools']);
+        Route::get('/get-machines', ['App\Http\Controllers\WinningTagsController', 'getMachines']);
+        Route::get('/stake/numbers', ['App\Http\Controllers\StakeNumbersController', 'getMachines']);
+    });
 
     Route::group(['prefix' => 'v1/customer'], function () {
-        Route::get('/register-user', ['App\Http\Controllers\Auth\AuthController', 'registerUser']);
-        Route::get('/register-user', ['App\Http\Controllers\Auth\AuthController', 'registerUser']);
+        Route::post('/register-user', ['App\Http\Controllers\Auth\AuthController', 'registerUser']);
+        Route::post('/verify-code', ['App\Http\Controllers\Auth\AuthController', 'verifyCode']);
+        Route::post('/forgot-password', ['App\Http\Controllers\Auth\AuthController', 'forgotPassword']);
+        Route::post('/dashboard', ['App\Http\Controllers\CustomerStakeController', 'dashboard']);
         Route::get('/stake/numbers', ['App\Http\Controllers\StakeNumbersController', 'index']);
         Route::post('/account/create', ['App\Http\Controllers\BankAccountController', 'store']);
-        Route::get('/account', ['App\Http\Controllers\BankAccountController', 'getAccount']);
+        Route::get('/account', ['App\Http\Controllers\BankAccountController', 'getAccountDetails']);
         Route::post('/stake/add', ['App\Http\Controllers\CustomerStakeController', 'store']);
-        Route::get('/get-history', ['App\Http\Controllers\BankAccountController', 'getHistory']);
-
+        Route::get('/get-history', ['App\Http\Controllers\TransactionsController', 'getTransactionHistory']);
+        Route::get('/get-credit-history', ['App\Http\Controllers\TransactionsController', 'getTransactionCreditHistory']);
+        Route::get('/get-debit-history', ['App\Http\Controllers\TransactionsController', 'getTransactionDebitHistory']);
+        Route::get('/dashboard', ['App\Http\Controllers\CustomerStakeController', 'dashboard']);
+        Route::get('/add-fund', ['App\Http\Controllers\TransactionsController', 'addFund']);
+        Route::get('/verify-otp', ['App\Http\Controllers\TransactionsController', 'verifyOTP']);
+        Route::group(['prefix' => 'update'], function () {
+            Route::get('/name', ['App\Http\Controllers\TransactionsController', 'addFund']);
+            Route::get('/password', ['App\Http\Controllers\Auth\AuthController', 'updatePassword']);
+        });
 
     });
+
     Route::group(['prefix' => 'v1/admin'], function () {
-
-
-        Route::group(['middleware' => ['auth:sanctum']], function () {
-            Route::get('/bank-accounts/all', ['App\Http\Controllers\BankAccountController', 'getAllAccounts']);
-            Route::post('/staking/open', ['App\Http\Controllers\CustomerStakeController', 'openStaking']);
-            Route::post('/win-number/create', ['App\Http\Controllers\WinNumbersController', 'store']);
-            Route::get('/category/create', ['App\Http\Controllers\CategoriesController', 'store']);
-            Route::get('/sub-category/create', ['App\Http\Controllers\SubCategoryController', 'store']);
+//        Route::group(['middleware' => ['auth:sanctum']], function () {
+            Route::get('/dashboard', ['App\Http\Controllers\AdminController', 'dashboard']);
+            Route::patch('/update/winning-tags/{i}', ['App\Http\Controllers\AdminController', 'updateWinningTag']);
+            Route::get('/category/winning-tags/{i}', ['App\Http\Controllers\WinningTagsController', 'getSingleTag']);
             Route::post('/winning-tags/create', ['App\Http\Controllers\WinningTagsController', 'store']);
+            Route::patch('/stop-raffle-draw', ['App\Http\Controllers\WinningTagsController', 'stopDraw']);
+            Route::patch('/winning-tags', ['App\Http\Controllers\WinningTagsController', 'update']);
+            Route::get('/bank-accounts', ['App\Http\Controllers\BankAccountController', 'getAllAccounts']);
+            Route::post('/start-a-draw', ['App\Http\Controllers\CustomerStakeController', 'openStaking']);
+            Route::get('/get-all-draw', ['App\Http\Controllers\CustomerStakeController', 'getAllDraws']);
+            Route::post('/win-number/create', ['App\Http\Controllers\WinNumbersController', 'store']);
+            Route::get('/categories', ['App\Http\Controllers\CategoriesController', 'index']);
+            Route::post('/category/create', ['App\Http\Controllers\CategoriesController', 'store']);
+            Route::get('/sub-category/create', ['App\Http\Controllers\SubCategoryController', 'store']);
             Route::get('/customer-stake', ['App\Http\Controllers\CustomerStakeController', 'index']);
+            Route::get('/customers', ['App\Http\Controllers\AdminController', 'customers']);
             Route::get('/customer-stakefilter', ['App\Http\Controllers\CustomerStakeController', 'customers_by_filter']);
             Route::get('/customer-stake/totalstake', ['App\Http\Controllers\CustomerStakeController', 'getTotalStakes']);
-            Route::get('/categories', ['App\Http\Controllers\CategoriesController', 'index']);
             Route::post('/stake/numbers/add', ['App\Http\Controllers\StakeNumbersController', 'store']);
             Route::post('/customer/wins', ['App\Http\Controllers\WinListController', 'index']);
-            Route::get('/customer/winners', ['App\Http\Controllers\WinListController', 'getAllWinners']);
+            Route::post('/customer/search-by-date', ['App\Http\Controllers\AdminController', 'searchByDate']);
             Route::post('/customer/winners-by-date', ['App\Http\Controllers\WinListController', 'getAllWinnersByDate']);
             Route::post('/customer/winners-by-category', ['App\Http\Controllers\WinListController', 'getAllWinnersByCategory']);
-            Route::post('/customer/add', ['App\Http\Controllers\NewCustomerController', 'store']);
             Route::get('/customer/stakes', ['App\Http\Controllers\CustomerStakeController', 'index']);
-            Route::get('/customer/get-history', ['App\Http\Controllers\BankAccountController', 'getAllTransactionHistory']);
-        });
+            Route::get('/customer/transactions', ['App\Http\Controllers\TransactionsController', 'getAllTransactionHistory']);
+            Route::patch('/stake/price/{id}', ['App\Http\Controllers\WinningTagsController', 'getAllTransactionHistory']);
+//        });
     });
 });

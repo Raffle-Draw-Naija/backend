@@ -23,6 +23,14 @@ class NewCustomer extends Model
         'password'
     ];
 
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'amount'
+    ];
 
     /**
      * Get the Stakes of a Customer
@@ -30,6 +38,15 @@ class NewCustomer extends Model
     public function customerStakes(): HasMany
     {
         return $this->hasMany(Stake::class, "user_id", "id");
+    }
+
+
+    /**
+     * Get the Stakes of a Customer
+     */
+    public function transactionHistory(): HasMany
+    {
+        return $this->hasMany(CustomerTransactionHistory::class, "customer_id", "id");
     }
 }
 

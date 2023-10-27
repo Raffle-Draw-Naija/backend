@@ -40,7 +40,7 @@ class Stake extends Model
      */
     public function categories(): BelongsTo
     {
-        return $this->belongsTo(Categories::class, "user_id");
+        return $this->belongsTo(Categories::class, "category_id");
     }
 
     /**
@@ -56,6 +56,6 @@ class Stake extends Model
      */
     public function winningTags(): BelongsTo
     {
-        return $this->belongsTo(WinningTags::class, "user_id");
+        return $this->belongsTo(WinningTags::class, "winning_tags_id");
     }
 }
