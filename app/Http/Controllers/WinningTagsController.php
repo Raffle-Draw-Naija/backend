@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Storage;
 
 class WinningTagsController extends Controller
 {
+
     /**
      * @OA\Get(
      *     path="/api/v1/get-machines",
@@ -43,7 +44,7 @@ class WinningTagsController extends Controller
          Stake::where("stake_platform_id", $stake_platform_id)->update(["active" => 0]);
 
          $stake_platform = StakePlatform::findOrFail($stake_platform_id);
-         $stake_platform->is_open = 0;
+         $stake_platform->is_close = 1;
          $stake_platform->update();
         $data = RaffleDrawsResource::collection(StakePlatform::with(["categories", "winningTags"])->orderBy("created_at", "DESC")->get());
         return $utils->message("success", $data, 200);
@@ -51,16 +52,45 @@ class WinningTagsController extends Controller
     }
     /**
      * @OA\Get(
-     *     path="/api/v1/winning-tags/:id",
+     *     path="/api/v1/category/winning-tags",
      *     summary="Get Machines",
      *     tags={"General"},
-     *     @OA\Response(response="200", description="Get Machines"),
+     *     @OA\Parameter(
+     *         name="category_id",
+     *         in="query",
+     *         description="category id of the winning tag",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(response="200", description="Get category id", @OA\JsonContent()),
      * )
      */
-    public function getTag($id, Utils $utils)
+    public function getTag(Request $request, Utils $utils)
     {
-
-        $winningTags = WinningTags::where("category_id", $id)->get();
+        $request->validate([
+            "category_id" => 'required'
+        ]);
+        $winningTags = WinningTags::where("category_id", $request->get("category_id"))->get();
+        return $utils->message("Success", $winningTags, 200);
+    }
+    /**
+     * @OA\Get(
+     *     path="/api/v1/admin/winning-tags",
+     *     summary="Get Machines",
+     *     tags={"General"},
+     *     @OA\Parameter(
+     *         name="category_id",
+     *         in="query",
+     *         description="category id of the winning tag",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(response="200", description="Get category id", @OA\JsonContent()),
+     * )
+     */
+    public function adminGetTags($id, Utils $utils)
+    {
+        $winningTags = WinningTags::where("category_id",$id)->get();
         return $utils->message("Success", $winningTags, 200);
     }
     /**

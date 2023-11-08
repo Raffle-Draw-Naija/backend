@@ -17,7 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('winning_tags_id');
             $table->integer('month');
             $table->integer('year');
-            $table->integer('is_open')->default(1);
+            $table->integer('is_close')->default(1);
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
             $table->foreign('winning_tags_id')->references('id')->on('winning_tags')->onDelete('cascade');
             $table->timestamps();
