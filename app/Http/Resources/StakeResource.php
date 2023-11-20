@@ -12,16 +12,17 @@ class StakeResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'category' => $this->categories->name,
+            'category' => $this->category_name,
             'month' => $this->month,
             'year' => $this->year,
             'win' => $this->win,
-            'winningTags' => $this->winningTags->name,
+            'winningTags' => $this->name,
             'stakePrice' => $this->stake_price,
             'ticketId' => $this->ticket_id,
             'date' => Carbon::parse($this->created_at)->format("d M, Y") ,
             'numberPicked' => $this->stake_number,
             'payment_method' => $this->payment_method,
+            'stake_platform_id' => $this->stake_platform_id,
         ];
     }
 }

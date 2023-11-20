@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\CustomerResource;
 use App\Models\BankAccount;
 use App\Models\CustomerTransactionHistory;
 use App\Models\NewCustomer;
@@ -49,7 +50,7 @@ class BankAccountController extends Controller
         $request->validate([
             "user_id" => "required|integer"
         ]);
-        $accountDetails = User::where("id", $request->get("user_id"))->with("profile")->firstOrFail();
+        $accountDetails = User::where("id", $request->get("user_id"))->with(["profile", "bankAccount"])->firstOrFail();
         return  $utils->message("success", $accountDetails, 200);
     }
     public function store(Request $request, Utils $utils)

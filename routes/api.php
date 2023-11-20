@@ -56,6 +56,7 @@ Route::get('/categories/list', ['App\Http\Controllers\CategoriesController', 'in
             Route::namespace('App\Http\Controllers')->group(function () {
                 Route::group(['prefix' => '/v1'], function () {
                     Route::post('/login', ['App\Http\Controllers\Auth\AuthController', 'login']);
+                    Route::get('/logout', ['App\Http\Controllers\Auth\AuthController', 'logout']);
                     Route::get('/winning-tags', ['App\Http\Controllers\WinningTagsController', 'index']);
                     Route::get('/categories', ['App\Http\Controllers\CategoriesController', 'index']);
                     Route::post('/winning-tags', ['App\Http\Controllers\WinningTagsController', 'index']);
@@ -66,6 +67,9 @@ Route::get('/categories/list', ['App\Http\Controllers\CategoriesController', 'in
                 });
 
                 Route::group(['prefix' => 'v1/customer'], function () {
+
+                    Route::get('/send-notification', ['App\Http\Controllers\Auth\AuthController', 'sendNotification']);
+                    Route::get('/get-notifications', ['App\Http\Controllers\Auth\AuthController', 'getNotification']);
                     Route::post('/register-user', ['App\Http\Controllers\Auth\AuthController', 'registerUser']);
                     Route::get('/get-raffles', ['App\Http\Controllers\CustomerStakeController', 'getRaffles']);
                     Route::post('/verify-code', ['App\Http\Controllers\Auth\AuthController', 'verifyCode']);
@@ -76,13 +80,15 @@ Route::get('/categories/list', ['App\Http\Controllers\CategoriesController', 'in
                     Route::post('/stake/add', ['App\Http\Controllers\CustomerStakeController', 'store']);
                     Route::get('/get-history', ['App\Http\Controllers\TransactionsController', 'getTransactionHistory']);
                     Route::get('/get-credit-history', ['App\Http\Controllers\TransactionsController', 'getTransactionCreditHistory']);
+                    Route::get('/get-withdrawal-history', ['App\Http\Controllers\TransactionsController', 'getTransactionWithdrawalHistory']);
                     Route::post('/get-transaction-history', ['App\Http\Controllers\TransactionsController', 'getTransactionDebitHistory']);
-                    Route::get('/get-stake-history', ['App\Http\Controllers\CustomerStakeController', 'getStakeHistory']);
+                    Route::get('/raffles/all', ['App\Http\Controllers\CustomerStakeController', 'getStakeHistory']);
+                    Route::get('/raffles/active', ['App\Http\Controllers\CustomerStakeController', 'getActiveStakeHistory']);
                     Route::get('/dashboard', ['App\Http\Controllers\CustomerStakeController', 'dashboard']);
-                    Route::get('/add-fund', ['App\Http\Controllers\TransactionsController', 'addFund']);
+                    Route::post('/add-fund', ['App\Http\Controllers\TransactionsController', 'addFund']);
                     Route::post('/verify-otp', ['App\Http\Controllers\Auth\AuthController', 'verifyOTP']);
+                    Route::post('/withdrawal', ['App\Http\Controllers\TransactionsController', 'withdrawal']);
                     Route::group(['prefix' => 'update'], function () {
-                        Route::get('/name', ['App\Http\Controllers\TransactionsController', 'addFund']);
                         Route::post('/password', ['App\Http\Controllers\Auth\AuthController', 'updatePassword']);
                     });
 

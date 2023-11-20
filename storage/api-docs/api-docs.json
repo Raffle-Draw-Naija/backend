@@ -5,6 +5,40 @@
         "version": "1.0.0"
     },
     "paths": {
+        "/api/v1/customer/get-notifications": {
+            "get": {
+                "tags": [
+                    "Mobile"
+                ],
+                "operationId": "83af0878f7a6db980e114755c78bd213",
+                "responses": {
+                    "200": {
+                        "description": "Registration successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/customer/register-user": {
             "post": {
                 "tags": [
@@ -215,6 +249,15 @@
                         "name": "code",
                         "in": "query",
                         "description": "code",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "description": "email",
                         "required": true,
                         "schema": {
                             "type": "string"
@@ -676,8 +719,25 @@
                     {
                         "name": "payment_method",
                         "in": "query",
-                        "description": "Payment Method(card or credit)",
+                        "description": "Payment Method(card or wallet)",
                         "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "stake_platform_id",
+                        "in": "query",
+                        "description": "",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "trx_ref",
+                        "in": "query",
+                        "description": "Transaction Ref from flutterwave",
                         "schema": {
                             "type": "string"
                         }

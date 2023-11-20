@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Mail\PasswordCodeEmail;
 use App\Mail\VerifyCodeMail;
+use App\Models\Agent;
 use App\Models\NewCustomer;
 use App\Models\User;
 use App\Utils\Utils;
@@ -21,6 +22,30 @@ use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class AuthController extends Controller
 {
+
+
+    public function sendNotification(Request $request, Utils $utils)
+    {
+        $response =  $utils->sendNotifications($request);
+        return  $utils->message("success", $response, 200);
+    }
+
+
+    /**
+     * @OA\Get (
+     *     path="/api/v1/customer/get-notifications",
+     *      tags={"Mobile"},
+     *     @OA\Response(response="200", description="Registration successful", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Invalid credentials", @OA\JsonContent()),
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *
+     * )
+     *
+     *     */
+    public function getNotification(Utils $utils)
+    {
+        return  $utils->message("success", $utils, 200);
+    }
 
     /**
      * @OA\Post(
@@ -68,6 +93,13 @@ class AuthController extends Controller
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
+     *     @OA\Parameter(
+     *         name="device_id",
+     *         in="query",
+     *         description="device_id",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
      *     @OA\Response(response="200", description="Registration successful", @OA\JsonContent()),
      *     @OA\Response(response="401", description="Invalid credentials", @OA\JsonContent()),
      *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
@@ -85,6 +117,7 @@ class AuthController extends Controller
         $user->verified = 0;
         $user->email = $userRequest->get("email");
         $user->verify_code = $verify_code;
+        $user->device_id = $userRequest->get("device_id");
         $user->save();
 
         $customer = new NewCustomer;
@@ -290,18 +323,25 @@ class AuthController extends Controller
             return $utils->message( "error", "Invalid Username/Password", 401);
         }
 
-        $user = NewCustomer::where("user_id", Auth::user()->id)->firstOrFail();
+        if (Auth::user()->role=="Agent")
+            $user = Agent::where("user_id", Auth::user()->id)->firstOrFail();
+        else
+            $user = NewCustomer::where("user_id", Auth::user()->id)->firstOrFail();
+
         $authUser = Auth::user();
         $success['token'] =  $authUser->createToken('MyAuthApp')->plainTextToken;
         $success['first_name'] =   $user->first_name;
         $success['last_name'] =  $user->last_name;
         $success['username'] =  $authUser->username;
+        $success['email'] =  $authUser->email;
+        $success['phone'] =  $user->phone;
         $success['id'] =  $authUser->id;
         return $utils->message("success", $success, 200);
     }
-    public function logout(): JsonResponse
+    public function logout(User $user, Utils $utils): JsonResponse
     {
         auth()->logout();
-        return response()->json(['message' => 'User successfully signed out']);
+        $user->tokens()->delete();
+        return $utils->message("success", "User successfully signed out", 200);
     }
 }

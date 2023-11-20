@@ -8,6 +8,7 @@ use App\Http\Resources\StakeResource;
 use App\Http\Resources\WinningTageResource;
 use App\Http\Resources\WinningTageResources;
 use App\Http\Resources\WinningTagsCollection;
+use App\Models\Notifications;
 use App\Models\Stake;
 use App\Models\StakePlatform;
 use App\Utils\Utils;
@@ -37,6 +38,7 @@ class WinningTagsController extends Controller
 
     public function stopDraw(Request $request, Utils $utils)
     {
+
          $request->validate([
             "stake_platform_id" => "required"
          ]);
@@ -45,7 +47,13 @@ class WinningTagsController extends Controller
 
          $stake_platform = StakePlatform::findOrFail($stake_platform_id);
          $stake_platform->is_close = 1;
+         $stake_platform->is_open = 0;
          $stake_platform->update();
+        Notifications::create([
+            "title" => "New Notification",
+            "body" => "Raffle has been Drawn",
+            "viewed" => "No"
+        ]);
         $data = RaffleDrawsResource::collection(StakePlatform::with(["categories", "winningTags"])->orderBy("created_at", "DESC")->get());
         return $utils->message("success", $data, 200);
 
