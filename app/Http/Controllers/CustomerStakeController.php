@@ -57,9 +57,8 @@ class CustomerStakeController extends Controller
             "category_id" => "required",
             "winning_tag_id" => "required"
         ]);
-        $stakes = StakePlatform::where("is_close", 0)->where("category_id", $request->get("category_id"))->where("winning_tags_id", $request->get("winning_tag_id"))->with("winningTags")->with("categories")->get();
+        $stakes = StakePlatform::where("is_close", 0)->where("category_id", $request->get("category_id"))->where("winning_tags_id", $request->get("winning_tag_id"))->with(["winningTags","categories"])->get();
         return $utils->message("success", $stakes, 200);
-
     }
 
     /**
@@ -97,9 +96,12 @@ class CustomerStakeController extends Controller
             ->select(
                 "customers_stakes.ticket_id",
                 "customers_stakes.created_at",
-                "customers_stakes.month",
+                "customers_stakes.month as month",
+                "customers_stakes.win",
                 "customers_stakes.year",
+                "stake_platforms.start_day",
                 "winning_tags.name AS winning_tag_name",
+                "winning_tags.stake_price",
                 "categories.name AS category_name",
             )
             ->get();
@@ -143,8 +145,11 @@ class CustomerStakeController extends Controller
                     ->select(
                         "customers_stakes.ticket_id",
                         "customers_stakes.created_at",
-                        "customers_stakes.month",
+                        "customers_stakes.month as month",
                         "customers_stakes.year",
+                        "customers_stakes.win",
+                        "winning_tags.stake_price",
+                        "stake_platforms.start_day",
                         "winning_tags.name AS winning_tag_name",
                         "categories.name AS category_name",
                     )
@@ -429,17 +434,12 @@ class CustomerStakeController extends Controller
          $price = WinningTags::where("id", $request->get("winning_tags_id"))->value("stake_price");
 
          if($request->get("payment_method") == "wallet"){
-             if($customer_balance >= $price){
-                 $balance =  $customer_balance - $price;
-                 if ($customer_balance >= $price){
-                     $balance = $customer_balance - $price;
-                     $customer = NewCustomer::where("user_id", $request->get("user_id"))->firstOrFail();
-                     $customer->wallet = $balance;
-                     $customer->update();
-                 }else{
-                     return $utils->message("error", "Insufficient Balance", 401);
-                 }
-             } else{
+             if ($customer_balance >= $price){
+                 $balance = $customer_balance - $price;
+                 $customer = NewCustomer::where("user_id", $request->get("user_id"))->firstOrFail();
+                 $customer->wallet = $balance;
+                 $customer->update();
+             }else{
                  return $utils->message("error", "Insufficient Balance", 401);
              }
          }

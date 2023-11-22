@@ -57,4 +57,11 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Models\CustomerTransactionHistory', "user_id");
     }
+
+    public function customerWithdrawal(): HasMany
+    {
+        return $this->hasMany('App\Models\Withdrawals', "user_id");
+    }
+
+
 }

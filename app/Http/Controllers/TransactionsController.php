@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\AddFundResource;
+use App\Http\Resources\WithdrawalResource;
+use App\Models\BankAccount;
 use App\Models\CustomerTransactionHistory;
 use App\Models\NewCustomer;
+use App\Models\Withdrawals;
 use App\Utils\Utils;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -29,10 +32,23 @@ class TransactionsController extends Controller
         return  $utils->message("success", $transaction_history, 200);
     }
 
+    public function updatePendingWithdrawal($id, Request $request, Utils $utils)
+    {
+           $status = Withdrawals::where("id", $id)->update(["status" => "Completed"]);
+           if ($status)
+               $withdrawal = Withdrawals::with(["user", "customer", "bankAccount"])->get();
+        return  $utils->message("success", WithdrawalResource::collection($withdrawal), 200);
 
+    }
+
+    public function getWithdrawals(Utils $utils)
+    {
+        $withdrawal = Withdrawals::with(["user", "customer", "bankAccount"])->get();
+        return  $utils->message("success", WithdrawalResource::collection($withdrawal), 200);
+    }
     /**
-     * @OA\Post(
-     *     path="/api/v1/customer/get-transaction-history",
+     * @OA\Get (
+     *     path="/api/v1/customer/get-debits-history",
      *     summary="List debit transactions",
      *     tags={"Mobile"},
      *     @OA\Parameter(
@@ -57,7 +73,7 @@ class TransactionsController extends Controller
     }
 
     /**
-     * @OA\Post(
+     * @OA\Get (
      *     path="/api/v1/customer/get-credit-history",
      *      tags={"Mobile"},
      *     @OA\Parameter(
@@ -79,7 +95,7 @@ class TransactionsController extends Controller
             "user_id" => "required|integer"
         ]);
 
-        $transaction_history = CustomerTransactionHistory::where("id", $request->get("user_id"))->where("transaction_type", "Credit")->get();
+        $transaction_history = CustomerTransactionHistory::where("user_id", $request->get("user_id"))->where("transaction_type", "Credit")->get();
         return  $utils->message("success", $transaction_history, 200);
     }
 
@@ -150,14 +166,15 @@ class TransactionsController extends Controller
             return  DB::transaction(function () use ($request, $total, $utils, $amount, $user_id){
                     NewCustomer::where("user_id", $user_id)->update(["wallet" => $total]);
 
-                    $transactionHistory = new CustomerTransactionHistory;
+                    $transactionHistory = new Withdrawals();
                     $transactionHistory->user_id = $user_id;
+                    $transactionHistory->customer_id = NewCustomer::where("user_id", $user_id)->value("id");
+                    $transactionHistory->bank_account_id = BankAccount::where("user_id", $user_id)->value("id");
                     $transactionHistory->amount = $amount;
-                    $transactionHistory->transaction_ref =  "9ja_" .  Str::random(10);
-                    $transactionHistory->transaction_type = "Debit";
-                    $transactionHistory->payment_method = "Card";
-                    $transactionHistory->description = "Withdrawal from" . NewCustomer::where("user_id", $user_id)->value("first_name");
-                    $transactionHistory->update();
+                    $transactionHistory->trx_ref =  "9ja_" .  Str::random(15);
+                    $transactionHistory->status = "Pending";
+                    $transactionHistory->narration = "Withdrawal from " . NewCustomer::where("user_id", $user_id)->value("first_name");
+                    $transactionHistory->save();
                    return $utils->message("success", "Your Withdrawal will be reviewed within 24hrs", 200);
                 });
         } catch (\GuzzleHttp\Exception\ClientException $e) {
@@ -167,7 +184,7 @@ class TransactionsController extends Controller
 
 
     /**
-     * @OA\Get(
+     * @OA\Post (
      *     path="/api/v1/customer/add-fund",
      *     summary="Add Fund",
      *     tags={"Mobile"},
@@ -196,7 +213,7 @@ class TransactionsController extends Controller
      *     @OA\Response(response="401", description="Invalid credentials")
      * )
      */
-    public function addFund(Request $request, Utils $utils): JsonResponse
+    public function addFund(Request $request, Utils $utils)
     {
         $request->validate([
             "user_id" => "required",
@@ -209,14 +226,14 @@ class TransactionsController extends Controller
         $customer_id =  NewCustomer::where("id",  $request->get("user_id"))->value("id");
 
 
-        $wallet = NewCustomer::where("id",  $request->get("user_id"))->value("wallet");
-        $balance = $wallet + $request->get("amount");
+        $wallet = NewCustomer::where("user_id",  $request->get("user_id"))->value("wallet");
+        $total = $wallet + $request->get("amount");
 
         if(!NewCustomer::where("user_id", $request->get("user_id"))->exists())
             return  $utils->message("success", "User Not Found", 404);
 
         $customer = NewCustomer::where("user_id", $request->get("user_id"))->firstOrFail();
-        $customer->wallet = $balance;
+        $customer->wallet = $total;
         $customer->update();
 
         $transactionHistory = new CustomerTransactionHistory;

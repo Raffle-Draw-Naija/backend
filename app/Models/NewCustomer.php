@@ -54,6 +54,10 @@ class NewCustomer extends Model
     {
         return $this->belongsTo(User::class, "user_id", "id");
     }
+    public function customerWithdrawal(): HasMany
+    {
+        return $this->HasMany(Withdrawals::class, "customer_id", "id");
+    }
 }
 
 /**class NewCustomer2 extends Model

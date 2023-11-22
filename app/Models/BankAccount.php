@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class BankAccount extends Model
 {
@@ -12,8 +13,14 @@ class BankAccount extends Model
 
     protected $guarded = [];
 
-    public function bankAccount(): BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo('App\Models\User', "user_id");
+    }
+
+
+    public function customerWithdrawal(): HasMany
+    {
+        return $this->HasMany(Withdrawals::class, "bank_account_id", "id");
     }
 }

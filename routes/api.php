@@ -64,6 +64,7 @@ Route::get('/categories/list', ['App\Http\Controllers\CategoriesController', 'in
                     Route::get('/get-tools', ['App\Http\Controllers\WinningTagsController', 'getTools']);
                     Route::get('/get-machines', ['App\Http\Controllers\WinningTagsController', 'getMachines']);
                     Route::get('/stake/numbers', ['App\Http\Controllers\StakeNumbersController', 'index']);
+                    Route::get('/get-banks', ['App\Http\Controllers\BankAccountController', 'getBanks']);
                 });
 
                 Route::group(['prefix' => 'v1/customer'], function () {
@@ -80,8 +81,8 @@ Route::get('/categories/list', ['App\Http\Controllers\CategoriesController', 'in
                     Route::post('/stake/add', ['App\Http\Controllers\CustomerStakeController', 'store']);
                     Route::get('/get-history', ['App\Http\Controllers\TransactionsController', 'getTransactionHistory']);
                     Route::get('/get-credit-history', ['App\Http\Controllers\TransactionsController', 'getTransactionCreditHistory']);
-                    Route::get('/get-withdrawal-history', ['App\Http\Controllers\TransactionsController', 'getTransactionWithdrawalHistory']);
-                    Route::post('/get-transaction-history', ['App\Http\Controllers\TransactionsController', 'getTransactionDebitHistory']);
+                    Route::get('/get-pending-withdrawal', ['App\Http\Controllers\TransactionsController', 'getPendingWithdrawals']);
+                    Route::get('/get-debits-history', ['App\Http\Controllers\TransactionsController', 'getTransactionDebitHistory']);
                     Route::get('/raffles/all', ['App\Http\Controllers\CustomerStakeController', 'getStakeHistory']);
                     Route::get('/raffles/active', ['App\Http\Controllers\CustomerStakeController', 'getActiveStakeHistory']);
                     Route::get('/dashboard', ['App\Http\Controllers\CustomerStakeController', 'dashboard']);
@@ -105,6 +106,7 @@ Route::get('/categories/list', ['App\Http\Controllers\CategoriesController', 'in
                         Route::patch('/winning-tags', ['App\Http\Controllers\WinningTagsController', 'update']);
                         Route::get('/bank-accounts', ['App\Http\Controllers\BankAccountController', 'getAllAccounts']);
                         Route::post('/start-a-raffle', ['App\Http\Controllers\CustomerStakeController', 'openStaking']);
+                        Route::post('/start-a-raffle', ['App\Http\Controllers\CustomerStakeController', 'openStaking']);
                         Route::get('/get-all-draw', ['App\Http\Controllers\CustomerStakeController', 'getAllDraws']);
                         Route::post('/win-number/create', ['App\Http\Controllers\WinNumbersController', 'store']);
                         Route::get('/categories', ['App\Http\Controllers\CategoriesController', 'index']);
@@ -122,6 +124,9 @@ Route::get('/categories/list', ['App\Http\Controllers\CategoriesController', 'in
                         Route::get('/customer/stakes', ['App\Http\Controllers\CustomerStakeController', 'index']);
                         Route::get('/customer/transactions', ['App\Http\Controllers\TransactionsController', 'getAllTransactionHistory']);
                         Route::patch('/stake/price/{id}', ['App\Http\Controllers\WinningTagsController', 'getAllTransactionHistory']);
+                        Route::get('/pending-withdrawal', ['App\Http\Controllers\TransactionsController', 'getWithdrawals']);
+                        Route::patch('/update/pending-withdrawal/{i}', ['App\Http\Controllers\TransactionsController', 'updatePendingWithdrawal']);
+
             //        });
                 });
             });

@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\BankResource;
 use App\Http\Resources\CustomerResource;
 use App\Models\BankAccount;
+use App\Models\Banks;
 use App\Models\CustomerTransactionHistory;
 use App\Models\NewCustomer;
 use App\Models\User;
@@ -13,6 +15,33 @@ use Illuminate\Http\Request;
 
 class BankAccountController extends Controller
 {
+    public function getBanks(Utils $utils)
+    {
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer ' . env("FLUTTERWAVE_SEC_KEY") ,
+        ];
+        try {
+            $client = new \GuzzleHttp\Client();
+            $response = $client->request('GET', 'https://api.flutterwave.com/v3/banks/NG' , [
+                'verify' => false,
+                'headers' => $headers
+            ]);
+            $banks = json_decode($response->getBody(), true);
+
+            foreach ($banks["data"] as $bank){
+                $banking = new Banks();
+                $banking->code = json_decode(json_encode($bank["code"]));
+                $banking->name = json_decode(json_encode($bank["name"]));
+                $banking->save();
+            }
+            return $utils->message("success", json_decode(json_encode($banks["data"]))  , 200);
+
+        }catch (\Throwable $e) {
+            // Do something with your exception
+            return $utils->message("error",$e->getMessage()  , 400);
+        }
+    }
     /**
      * @OA\Get(
      *     path="/api/v1/admin/bank-accounts/all",
