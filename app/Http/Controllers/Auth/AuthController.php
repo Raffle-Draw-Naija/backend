@@ -2,13 +2,18 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Execs\Execs;
+use App\Http\Resources\StatesResource;
+use App\Http\Resources\UserResource;
 use App\Mail\PasswordCodeEmail;
 use App\Mail\VerifyCodeMail;
 use App\Models\Agent;
 use App\Models\NewCustomer;
+use App\Models\States;
 use App\Models\User;
 use App\Utils\Utils;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -23,7 +28,27 @@ use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 class AuthController extends Controller
 {
 
+    public function getStates(Utils $utils)
+    {
+        return $utils->message("success", StatesResource::collection(States::all()), 200);
+    }
+    public function registerAgent(UserRequest $userRequest, Utils $utils, Execs $execs)
+    {
+        try{
 
+            $user =  $execs->createUser($userRequest, $utils);
+            $agent = $execs->createAgent($user->id,  $userRequest, $utils);
+            $data = [
+                "user" => New UserResource($user),
+                "agent" => $agent
+            ];
+//        Mail::mailer("no-reply")->to($userRequest->get("email"))->send(new VerifyCodeMail($mailData));
+            return $utils->message("success", $data, 200);
+        }catch (\Throwable $e) {
+            Log::error("########## " . $e->getMessage() . " #########");
+            return $utils->message("error", $e->getMessage(), 404);
+        }
+    }
     public function sendNotification(Request $request, Utils $utils)
     {
         $response =  $utils->sendNotifications($request);
@@ -163,14 +188,18 @@ class AuthController extends Controller
 
         $request->validate([
             "code" => "required|string",
-            "email" => "required|string"
+            "username" => "required|string"
         ]);
 
-        if(!User::where("email", $request->get("email"))->where("verify_code", $request->get("code"))->exists())
-            return $utils->message("error", "Code Does Not Exist", 404);
+        if(!User::where("username", $request->get("username"))->where("verify_code", $request->get("code"))->exists())
+            return $utils->message("error", "Invalid Code", 404);
 
-        $user = User::where("email", $request->get("email"))->firstOrFail();
+        if($request->get("code") == 0)
+            return $utils->message("error", "Invalid Code", 404);
+
+        $user = User::where("username", $request->get("username"))->firstOrFail();
         $user->verified = 1;
+        $user->verify_code = 0;
         $user->update();
         return $utils->message("success","Verification Successful.", 200);
 
@@ -311,6 +340,13 @@ class AuthController extends Controller
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
+     *     @OA\Parameter(
+     *         name="device_id",
+     *         in="query",
+     *         description="Device ID",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
      *     @OA\Response(response="200", description="Login successful", @OA\JsonContent()),
      *     @OA\Response(response="401", description="Unauthorized", @OA\JsonContent()),
      *     @OA\Response(response="422", description="Validation Error", @OA\JsonContent())
@@ -328,6 +364,7 @@ class AuthController extends Controller
         else
             $user = NewCustomer::where("user_id", Auth::user()->id)->firstOrFail();
 
+        $loginRequest->get("device_id");
         $authUser = Auth::user();
         $success['token'] =  $authUser->createToken('MyAuthApp')->plainTextToken;
         $success['first_name'] =   $user->first_name;
