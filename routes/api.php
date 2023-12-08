@@ -30,8 +30,6 @@ Route::get('/categories/list', ['App\Http\Controllers\CategoriesController', 'in
                 Route::get('/register-user', ['App\Http\Controllers\Auth\AuthController', 'registerUser']);
                 Route::get('/test', ['App\Http\Controllers\Auth\AuthController', 'test']);
 
-                Route::group(['middleware' => ['auth:sanctum']], function () {
-                });
             });
             Route::namespace('App\Http\Controllers')->group(function () {
                 Route::group(['prefix' => '/v1'], function () {
@@ -47,10 +45,19 @@ Route::get('/categories/list', ['App\Http\Controllers\CategoriesController', 'in
                     Route::get('/get-banks', ['App\Http\Controllers\BankAccountController', 'getBanks']);
 
                 Route::group(['prefix' => '/agent'], function () {
-                    Route::get('/get-states', ['App\Http\Controllers\Auth\AuthController', 'getStates']);
-                    Route::post('/create', ['App\Http\Controllers\Auth\AuthController', 'registerAgent']);
+                    Route::post('/login', ['App\Http\Controllers\Auth\AuthController', 'login']);
                     Route::post('/verify-otp', ['App\Http\Controllers\Auth\AuthController', 'verifyCode']);
+                    Route::get('/get-states', ['App\Http\Controllers\Auth\AuthController', 'getStates']);
                     Route::get('get-raffles', ['App\Http\Controllers\AgentController', 'getRaffles']);
+                    Route::get('/logout', ['App\Http\Controllers\Auth\AuthController', 'logout']);
+
+                    Route::group(['middleware' => ['auth:sanctum']], function () {
+                        Route::post('/create', ['App\Http\Controllers\Auth\AuthController', 'registerAgent']);
+                        Route::post('/validate-pin', ['App\Http\Controllers\AgentController', 'validatePin']);
+                        Route::post('/check-balance', ['App\Http\Controllers\AgentController', 'checkBalance']);
+
+                    });
+
 
                 });
 

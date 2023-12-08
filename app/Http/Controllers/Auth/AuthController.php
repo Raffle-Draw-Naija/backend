@@ -373,6 +373,7 @@ class AuthController extends Controller
         $success['email'] =  $authUser->email;
         $success['phone'] =  $user->phone;
         $success['id'] =  $authUser->id;
+        $success['role'] =  $authUser->role;
         return $utils->message("success", $success, 200);
     }
     public function logout(User $user, Utils $utils): JsonResponse
