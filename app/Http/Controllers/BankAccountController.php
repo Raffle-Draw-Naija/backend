@@ -4,43 +4,59 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\BankResource;
 use App\Http\Resources\CustomerResource;
+use App\Http\Resources\ProfileResource;
 use App\Models\BankAccount;
 use App\Models\Banks;
 use App\Models\CustomerTransactionHistory;
 use App\Models\NewCustomer;
+use App\Models\Stake;
 use App\Models\User;
+use App\Models\Withdrawals;
 use App\Utils\Utils;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class BankAccountController extends Controller
 {
-    public function getBanks(Utils $utils)
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/get-banks",
+     *     summary="Get all Banks",
+     *     tags={"General"},
+     *     @OA\Response(response="200", description="Get all Bank Accounts"),
+     *     @OA\Response(response="401", description="Invalid credentials")
+     * )
+     */
+    public function getBanks(Utils $utils): JsonResponse
     {
         $headers = [
             'Content-Type' => 'application/json',
             'Authorization' => 'Bearer ' . env("FLUTTERWAVE_SEC_KEY") ,
         ];
-        try {
-            $client = new \GuzzleHttp\Client();
-            $response = $client->request('GET', 'https://api.flutterwave.com/v3/banks/NG' , [
-                'verify' => false,
-                'headers' => $headers
-            ]);
-            $banks = json_decode($response->getBody(), true);
+//        try {
+//            $client = new \GuzzleHttp\Client();
+//            $response = $client->request('GET', 'https://api.flutterwave.com/v3/banks/NG' , [
+//                'verify' => false,
+//                'headers' => $headers
+//            ]);
+//            $banks = json_decode($response->getBody(), true);
+//
+//            foreach ($banks["data"] as $bank){
+//                $banking = new Banks();
+//                $banking->code = json_decode(json_encode($bank["code"]));
+//                $banking->name = json_decode(json_encode($bank["name"]));
+//                $banking->save();
+//            }
+//            return $utils->message("success", json_decode(json_encode($banks["data"]))  , 200);
+//
+//        }catch (\Throwable $e) {
+//            // Do something with your exception
+//            return $utils->message("error",$e->getMessage()  , 400);
+//        }
 
-            foreach ($banks["data"] as $bank){
-                $banking = new Banks();
-                $banking->code = json_decode(json_encode($bank["code"]));
-                $banking->name = json_decode(json_encode($bank["name"]));
-                $banking->save();
-            }
-            return $utils->message("success", json_decode(json_encode($banks["data"]))  , 200);
-
-        }catch (\Throwable $e) {
-            // Do something with your exception
-            return $utils->message("error",$e->getMessage()  , 400);
-        }
+        $banks =  Banks::all();
+        return $utils->message("success", $banks, 200);
     }
     /**
      * @OA\Get(
@@ -80,7 +96,19 @@ class BankAccountController extends Controller
             "user_id" => "required|integer"
         ]);
         $accountDetails = User::where("id", $request->get("user_id"))->with(["profile", "bankAccount"])->firstOrFail();
-        return  $utils->message("success", $accountDetails, 200);
+        $sum = CustomerTransactionHistory::where("user_id", $request->get("user_id"))->where("transaction_type", "Credit")->sum("amount");
+        $sums = Withdrawals::where("user_id", $request->get("user_id"))->sum("amount");
+        $stakeSum = Stake::where("user_id", $request->get("user_id"))->sum("stake_price");
+        $winSum = Stake::where("user_id", $request->get("user_id"))->where("win", 1)->sum("stake_price");
+
+        $data = [
+            "total_fund_added" => doubleval($sum),
+            "total_stake" => doubleval($stakeSum),
+            "total_win" => doubleval($winSum),
+            "account_details" => new ProfileResource($accountDetails),
+            "total_fund_withdrawn" => doubleval($sums)
+        ];
+        return  $utils->message("success", $data, 200);
     }
     public function store(Request $request, Utils $utils)
     {
@@ -90,8 +118,17 @@ class BankAccountController extends Controller
             "bank" => "required|string",
             "user_id" => "required|integer"
         ]);
-        if(!BankAccount::where("user_id", $request->get("user_id"))->exists())
-            return  $utils->message("error", "User Not Found", 404);
+        if(BankAccount::where("user_id", $request->get("user_id"))->exists())
+            return  $utils->message("error", "Account already Exists", 400);
+
+        $bank = Banks::where("code", $request->get("bank"))->value("name");
+         $bankAccount = new BankAccount();
+         $bankAccount->user_id = $request->get("user_id");
+         $bankAccount->account_no = $request->get("account_no");
+         $bankAccount->bank_code = $request->get("bank");
+         $bankAccount->bank = $bank;
+         $bankAccount->save();
+
         return  $utils->message("success", "Account Details Uploaded Successfully.", 200);
 
     }

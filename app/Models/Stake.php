@@ -58,4 +58,13 @@ class Stake extends Model
     {
         return $this->belongsTo(WinningTags::class, "winning_tags_id");
     }
+
+
+    /**
+     * Get the Stakes of a Customer
+     */
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(Notifications::class, "stake_id");
+    }
 }

@@ -86,7 +86,7 @@ class CustomerStakeController extends Controller
             "user_id" => "required"
         ]);
 
-        if(!Stake::where("user_id", $request->get("user_id"))->exists())
+        if(!User::where("id", $request->get("user_id"))->exists())
             return $utils->message("success", "User Not Found", 200);
 
         $stakes = DB::table("customers_stakes")
@@ -102,6 +102,7 @@ class CustomerStakeController extends Controller
                 "stake_platforms.start_day",
                 "winning_tags.name AS winning_tag_name",
                 "winning_tags.stake_price",
+                "categories.id AS category_id",
                 "categories.name AS category_name",
             )
             ->get();
@@ -133,7 +134,7 @@ class CustomerStakeController extends Controller
             "user_id" => "required"
         ]);
 
-        if(!Stake::where("user_id", $request->get("user_id"))->exists())
+        if(!User::where("id", $request->get("user_id"))->exists())
             return $utils->message("success", "User Not Found", 404);
 
         $stakes = DB::table("customers_stakes")
@@ -145,9 +146,9 @@ class CustomerStakeController extends Controller
                     ->select(
                         "customers_stakes.ticket_id",
                         "customers_stakes.created_at",
+                        "customers_stakes.win as customer_win",
                         "customers_stakes.month as month",
                         "customers_stakes.year",
-                        "customers_stakes.win",
                         "winning_tags.stake_price",
                         "stake_platforms.start_day",
                         "winning_tags.name AS winning_tag_name",
@@ -189,8 +190,8 @@ class CustomerStakeController extends Controller
 
         $totalStake = Stake::where("user_id", $user_id)->count();
         $totalWin = Stake::where("user_id", $user_id)->where("win", 1)->count();
-        $totalFundAdded = CustomerTransactionHistory::where("user_id", $user_id)->where("transaction_type", "Credit")->count();
-        $totalFundWithdrawn = CustomerTransactionHistory::where("user_id", $user_id)->where("transaction_type", "Debit")->count();
+        $totalFundAdded = CustomerTransactionHistory::where("user_id", $user_id)->where("transaction_type", "Credit")->sum("amount");
+        $totalFundWithdrawn = CustomerTransactionHistory::where("user_id", $user_id)->where("transaction_type", "Debit")->sum("stake_price");
         $activeStake = Stake::where("user_id", $user_id)->where("active", 1)->limit(3);
         $allStake = Stake::where("user_id", $user_id)->limit(3);
 
@@ -411,10 +412,16 @@ class CustomerStakeController extends Controller
             'winning_tags_id' => 'required|integer',
             'payment_method' => 'required'
         ]);
-        if(!StakePlatform::where("id",$stake_platform_id)->where("is_open", 1)->where("is_close", 0)->exists())
-            return $utils->message("error", "Platform is not open yet", 422);
 
-        if (!User::where("id", $request->get("user_id"))->exists())
+        $user_id = $request->get("user_id");
+        if(!StakePlatform::where("id",$stake_platform_id)->where("is_open", 1)->where("is_close", 0)->exists())
+            return $utils->message("error", "Raffle is closed", 422);
+
+
+        if(StakePlatform::where("id",$stake_platform_id)->where("start_date", ">", \Carbon\Carbon::now())->exists())
+            return $utils->message("error", "Raffle is not open yet", 422);
+
+        if (!User::where("id", $user_id)->exists())
             return $utils->message("error", "User Does not Exist", 404);
 
          $win_number = StakePlatform::where("id", $request->get("stake_platform_id"))->value("win_nos");
@@ -427,57 +434,55 @@ class CustomerStakeController extends Controller
          } else{
             $win = 0;
         }
-         if(!NewCustomer::where("user_id",  $request->get("user_id"))->exists())
+         if(!NewCustomer::where("user_id", $user_id)->exists())
              return $utils->message("error", "User Not Found", 404);
 
-         $customer_balance = NewCustomer::where("user_id", $request->get("user_id"))->value("wallet");
-         $price = WinningTags::where("id", $request->get("winning_tags_id"))->value("stake_price");
+         $customer_balance = NewCustomer::where("user_id", $user_id)->value("wallet");
+         $price = StakePlatform::where("id", $request->get("stake_platform_id"))->value("stake_price");
 
          if($request->get("payment_method") == "wallet"){
              if ($customer_balance >= $price){
                  $balance = $customer_balance - $price;
-                 $customer = NewCustomer::where("user_id", $request->get("user_id"))->firstOrFail();
+                 $customer = NewCustomer::where("user_id", $user_id)->firstOrFail();
                  $customer->wallet = $balance;
                  $customer->update();
              }else{
-                 return $utils->message("error", "Insufficient Balance", 401);
+                 return $utils->message("error", "Insufficient Balance", 422);
              }
          }
 
-        $customer_balance = NewCustomer::where("id", $request->get("user_id"))->value("wallet");
-        $price = WinningTags::where("id", $request->get("winning_tags_id"))->value("stake_price");
         $ticket_id = Str::random(10);
         if (Stake::where("ticket_id", $ticket_id)->exists())
             return $utils->message("error", "Network Error. Please Try again", 500);
 
-
-        $Stake = new Stake;
-        $Stake->user_id = $request->user_id;
-        $Stake->customer_id = $request->customer_id;
-        $Stake->ticket_id = $ticket_id;
-        $Stake->stake_price = $request->stake_price;
-        $Stake->stake_number = $request->stake_number;
-        $Stake->win = $win;
-        $Stake->active = 1;
-        $Stake->month = $request->month;
-        $Stake->year = $request->year;
-        $Stake->winning_tags_id = $request->winning_tags_id;
-        $Stake->category_id = $request->category_id;
-        $Stake->payment_method = $request->get("payment_method");
-        $Stake->stake_platform_id = $stake_platform_id;
-        $Stake->save();
+        $customer_id = NewCustomer::where("user_id", $user_id)->value("id") ;;
+        $stake = new Stake;
+        $stake->user_id = $user_id;
+        $stake->customer_id = $customer_id;
+        $stake->ticket_id = $ticket_id;
+        $stake->stake_price =$price;
+        $stake->stake_number = $request->stake_number;
+        $stake->win = $win;
+        $stake->active = 1;
+        $stake->month = $request->month;
+        $stake->year = $request->year;
+        $stake->winning_tags_id = $request->winning_tags_id;
+        $stake->category_id = $request->category_id;
+        $stake->payment_method = $request->get("payment_method");
+        $stake->stake_platform_id = $stake_platform_id;
+        $stake->save();
 
 
         $transactionHistory = new CustomerTransactionHistory;
-        $transactionHistory->user_id = $request->get("user_id");
-        $transactionHistory->customer_id = $request->get("customer_id");
+        $transactionHistory->user_id = $user_id;
+        $transactionHistory->customer_id = $customer_id;
         $transactionHistory->payment_method = $request->get("payment_method");
         $transactionHistory->amount = $price;
         $transactionHistory->transaction_type = "Debit";
         $transactionHistory->description = "Payment for ticket " . $ticket_id;
         $transactionHistory->transaction_ref = Str::random(10);
         $transactionHistory->save();
-        return $utils->message("success", $Stake, 200);
+        return $utils->message("success", $stake, 200);
 
     }
 

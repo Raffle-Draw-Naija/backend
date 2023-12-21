@@ -3,13 +3,65 @@
 namespace App\Utils;
 
 
+use App\Models\Agent;
+use App\Models\NewCustomer;
 use App\Models\User;
 use http\Env\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use PhpParser\Node\Expr\Cast\Double;
 
 class Utils
 {
+
+    public function validatePin($request, $pinFromDB, $utils): bool
+    {
+        if (!Hash::check($request->get("pin"), $pinFromDB))
+            return false;
+        return true;
+    }
+    public function getBalance($user_id): Double
+    {
+        return Agent::where("user_id", $user_id)->value("wallet");
+
+    }
+    public function checkBalance($role, $user_id, $request): bool
+    {
+        if ($role == "agent"){
+            $balance = Agent::where("user_id", $user_id)->value("wallet");
+            if ($balance < $request->get("amount"))
+                return false;
+            return true;
+        }else{
+            $balance = NewCustomer::where("user_id", $user_id)->value("wallet");
+            if ($balance < $request->get("amount"))
+                return false;
+            return true;
+        }
+    }
+    /**
+     * @param $type
+     * @return string
+     */
+    public static function generateCramp($type) :string
+    {
+        $mt = explode(' ', microtime());
+        $rand = time() . rand(10, 99);
+        $time = ((int)$mt[1]) * 1000000 + ((int)round($mt[0] * 1000000));
+        $generated = $rand . $time;
+
+        switch ($type) {
+            case "agent" :
+                return "3060" . $generated;
+                break;
+            case "customer" :
+                return "3061" . $generated;
+            default:
+                return "3069" . $generated;
+                break;
+        }
+    }
     public function message($msg = "Success", $data, $code): JsonResponse
     {
         return response()->json(["msg" => $msg, "data" => $data], $code);
