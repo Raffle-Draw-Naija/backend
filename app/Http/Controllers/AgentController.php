@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\AgentPaymentResource;
+use App\Http\Resources\StakeAgentPlatformResource;
 use App\Http\Resources\StakeResource;
 use App\Http\Resources\WinningTags;
 use App\Models\Agent;
@@ -51,7 +52,7 @@ class AgentController extends Controller
         $data = [
             "status" => $status
         ];
-        $utils->message("success", $status, 200);
+        $utils->message("success", $data, 200);
     }
 
     /**
@@ -84,8 +85,8 @@ class AgentController extends Controller
      */
     public function allStakes(Request $request, Utils $utils)
     {
-        $agent_di = $request->get("agent_id");
-        $utils->message("success", StakeResource::collection(Stake::where("id", $agent_di)->with("WinningTags")->get()), 200);
+        $agent_id = $request->get("agent_id");
+        $utils->message("success", StakeAgentPlatformResource::collection(Stake::where("id", $agent_id)->with("WinningTags")->get()), 200);
     }
     public function store(Request $request, Utils $utils)
     {
@@ -321,18 +322,18 @@ class AgentController extends Controller
     }
 
 
-    public function getRaffles(Utils $utils)
+    public function getRaffles(Request $request, Utils $utils)
     {
-        $stakes =  DB::table('customers_stakes')
+
+      return  $stakes =  DB::table('customers_stakes')
             ->join('winning_tags', 'winning_tags.id', '=', 'customers_stakes.winning_tags_id')
-            ->join('categories', 'categories.id', '=', 'customers_stakes.category_id')
             ->join('stake_platforms', 'stake_platforms.id', '=', 'customers_stakes.stake_platform_id')
             ->where('stake_platforms.is_close', '=', 1)
-            ->limit(10)
+            ->where('customers_stakes.user_id', '=', 19)
             ->select("winning_tags.name as winningTags", "customers_stakes.id as key", "customers_stakes.stake_price as stakePrice", "customers_stakes.created_at as date", "customers_stakes.stake_number as  numberPicked")
             ->get();
 
-        return $utils->message("success", StakeResource::collection($stakes), 200);
+        return $utils->message("success", $stakes, 200);
     }
     /**
      * @OA\Get  (

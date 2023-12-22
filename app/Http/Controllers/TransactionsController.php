@@ -452,6 +452,8 @@ class TransactionsController extends Controller
             "amount" => "required",
             "trx_ref" => "required"
         ]);
+
+        $amount = $request->get("amount");
         if(!NewCustomer::where("user_id",  $request->get("user_id"))->exists())
             return $utils->message("error", "User Not Found", 404);
 
@@ -465,7 +467,7 @@ class TransactionsController extends Controller
             return  $utils->message("success", "User Not Found", 404);
 
         $customer = NewCustomer::where("user_id", $request->get("user_id"))->firstOrFail();
-        $customer->wallet = $total;
+        $customer->wallet += $amount;
         $customer->update();
 
         $transactionHistory = new CustomerTransactionHistory;
