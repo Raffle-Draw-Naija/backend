@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\CategoryResource;
 use App\Http\Resources\RaffleDrawsResource;
+use App\Http\Resources\StakeAgentPlatform;
+use App\Http\Resources\StakeAgentPlatformResource;
 use App\Http\Resources\StakeResource;
 use App\Http\Resources\WinningTageResource;
 use App\Http\Resources\WinningTageResources;
@@ -101,6 +103,36 @@ class WinningTagsController extends Controller
         $winningTags = WinningTags::where("category_id",$id)->get();
         return $utils->message("Success", $winningTags, 200);
     }
+    /**
+     * @OA\Get(
+     *     path="/api/v1/agent/winning-tags",
+     *     summary="Get Machines",
+     *     tags={"General"},
+     *     @OA\Parameter(
+     *         name="category_id",
+     *         in="query",
+     *         description="category id of the winning tag",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(response="200", description="Get category id", @OA\JsonContent()),
+     * )
+     */
+    public function agentGetTags(Utils $utils)
+    {
+        $winningTags = WinningTags::all();
+        return $utils->message("Success", $winningTags, 200);
+    }
+
+
+    public function getRafflesWithId($id, Utils $utils)
+    {
+
+        $stakes = StakePlatform::where("winning_tags_id", $id)->with(["winningTags","categories"])->get();
+        return $utils->message("success", StakeAgentPlatformResource::collection($stakes), 200);
+    }
+
+
     /**
      * @OA\Get(
      *     path="/api/v1/category/winning-tags/:id",

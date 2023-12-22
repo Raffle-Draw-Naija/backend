@@ -75,6 +75,13 @@ Route::group(['prefix' => 'v1/customer'], function () {
             Route::get('/get-states', ['App\Http\Controllers\Auth\AuthController', 'getStates']);
             Route::get('get-raffles', ['App\Http\Controllers\AgentController', 'getRaffles']);
             Route::get('/logout', ['App\Http\Controllers\Auth\AuthController', 'logout']);
+            Route::get('/categories', ['App\Http\Controllers\CategoriesController', 'index']);
+            Route::get('/winning-tags', ['App\Http\Controllers\WinningTagsController', 'agentGetTags']);
+            Route::get('/get-raffle-with-id/{i}', ['App\Http\Controllers\WinningTagsController', 'getRafflesWithId']);
+            Route::post('/play-raffle', ['App\Http\Controllers\AgentController', 'store']);
+            Route::get('/all-stakes', ['App\Http\Controllers\AgentController', 'allStakes']);
+            Route::get('/all-highest-number', ['App\Http\Controllers\AgentController', 'getHighestNumber']);
+            Route::get('/get-raffle-status', ['App\Http\Controllers\AgentController', 'getRaffleStatus']);
 
             Route::group(['middleware' => ['auth:sanctum']], function () {
                 Route::post('/create', ['App\Http\Controllers\Auth\AuthController', 'registerAgent']);
@@ -86,7 +93,7 @@ Route::group(['prefix' => 'v1/customer'], function () {
             });
         });
 
-        Route::group(['prefix' => 'v1/admin'], function () {
+        Route::group(['prefix' => '/admin'], function () {
     //        Route::group(['middleware' => ['auth:sanctum']], function () {
                 Route::get('/winning-tags/{i}', ['App\Http\Controllers\WinningTagsController', 'adminGetTags']);
                 Route::get('/dashboard', ['App\Http\Controllers\AdminController', 'dashboard']);

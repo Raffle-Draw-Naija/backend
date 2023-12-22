@@ -21,7 +21,6 @@ class CategoriesController extends Controller
      */
     public function index()
     {
-        // the is the part that is listing all the categories
         $Categories = Categories::all();
         return response()->json(['Categories'=>$Categories], 200);
     }
