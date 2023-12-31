@@ -6,6 +6,7 @@ use App\Models\Categories;
 use App\Utils\Utils;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CategoriesController extends Controller
 {
@@ -15,6 +16,9 @@ class CategoriesController extends Controller
      *     path="/api/v1/admin/categories",
      *     summary="Get all Categories",
      *     tags={"Admin"},
+     *     security={
+     *         {"sanctum": {}}
+     *     },
      *     @OA\Response(response="200", description="Get all Categories"),
      *     @OA\Response(response="401", description="Invalid credentials")
      * )
@@ -47,9 +51,17 @@ class CategoriesController extends Controller
         $request->validate([
             "name" => "required"
         ]);
-        $category =  Categories::create($request->all());
-        return  $utils->message("success", $category, 200);
 
+        return  DB::transaction(function () use ($request, $utils) {
+            try {
+                $category = new Categories();
+                $category->name = $request->get("name");
+                $category->save();
+                return $utils->message("success", "Category Created Successfully.", 200);
+            } catch (\GuzzleHttp\Exception\ClientException $e) {
+                return $utils->message("error", $e->getMessage(), 400);
+            }
+        });
     }
 
     /**

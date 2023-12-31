@@ -3,12 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\AgentPaymentResource;
+use App\Http\Resources\AgentStakeResource;
+use App\Http\Resources\CreatePaymentResource;
 use App\Http\Resources\StakeAgentPlatformResource;
 use App\Http\Resources\StakeResource;
 use App\Http\Resources\WinningTags;
 use App\Models\Agent;
 use App\Models\AgentFundingTransactions;
 use App\Models\AgentPayments;
+use App\Models\AgentStakes;
+use App\Models\AgentTransactionHistory;
 use App\Models\CustomerTransactionHistory;
 use App\Models\NewCustomer;
 use App\Models\Stake;
@@ -19,6 +23,7 @@ use App\Utils\ConstantValues\ConstantValues;
 use App\Utils\Utils;
 use Carbon\Carbon;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Promise\Create;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -31,35 +36,43 @@ class AgentController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/v1/agent/get-raffle-status",
-     *     summary="Get Machines",
-     *     tags={"General"},
+     *     path="/api/v1/agent/get-transactions",
+     *     summary="get Transactions",
+     *     tags={"Agent"},
      *     @OA\Response(response="200", description="Get category id", @OA\JsonContent()),
      * )
      */
-    public function getRaffleStatus(Request $request, Utils $utils)
+    public function getTransactions(Request $request, Utils $utils)
     {
-        $request->validate([
-            "ticket_id" => "required"
-        ]);
 
-        $status = Stake::where("ticket_id", $request->get("ticket_id"))->value("win");
-        if ($status == 0)
-            $status = "Winner";
-        else
-            $status = "Loser";
+        $user_id = auth('sanctum')->user()->id;
+        $agent_id = Agent::where("user_id", $user_id)->value("id");
+      return  $utils->message("success", CustomerTransactionHistory::where("user_id", $agent_id)->get(["transaction_type", 'amount', 'description', 'created_at']), 200);
 
-        $data = [
-            "status" => $status
-        ];
-        $utils->message("success", $data, 200);
+    }
+    /**
+     * @OA\Get(
+     *     path="/api/v1/agent/get-raffle-status",
+     *     summary="Get Machines",
+     *     tags={"Agent"},
+     *     @OA\Response(response="200", description="Get category id", @OA\JsonContent()),
+     * )
+     */
+    public function getRaffleStatus($id, Request $request, Utils $utils)
+    {
+
+        if (!Stake::where("ticket_id", $id)->exists())
+            return  $utils->message("error", "Ticket ID Does Not Exist", 404);
+
+        $status = Stake::where("ticket_id", $id)->get(["win"]);
+        return  $utils->message("success", $status, 200);
     }
 
     /**
      * @OA\Get(
      *     path="/api/v1/agent/all-highest-number",
      *     summary="Get Machines",
-     *     tags={"General"},
+     *     tags={"Agent"},
      *     @OA\Response(response="200", description="Get category id", @OA\JsonContent()),
      * )
      */
@@ -72,7 +85,7 @@ class AgentController extends Controller
      * @OA\Get(
      *     path="/api/v1/agent/all-stakes",
      *     summary="Get Machines",
-     *     tags={"General"},
+     *     tags={"Agent"},
      *     @OA\Parameter(
      *         name="agent_id",
      *         in="query",
@@ -85,37 +98,44 @@ class AgentController extends Controller
      */
     public function allStakes(Request $request, Utils $utils)
     {
-        $agent_id = $request->get("agent_id");
-        $utils->message("success", StakeAgentPlatformResource::collection(Stake::where("id", $agent_id)->with("WinningTags")->get()), 200);
+        $user_id = auth('sanctum')->user()->id;
+        $agent_id = Agent::where("user_id", $user_id)->value("id");
+        AgentStakes::where("agent_id", $agent_id)->with("winningTags")->orderBy("created_at", "DESC")->get();
+        return  $utils->message("success", AgentStakeResource::collection(AgentStakes::where("agent_id", $agent_id)->with("winningTags")->orderBy("created_at", "DESC")->get()), 200);
     }
     public function store(Request $request, Utils $utils)
     {
 //        return Carbon::now();
+        $user_id = auth('sanctum')->user()->id;
 
         $request->validate([
-            'user_id' => 'required|max:191',
             'raffle_number' => 'required|max:191',
-            'raffleId' => 'required|max:191',
         ]);
         $stake_number = $request->get("raffle_number");
-        $user_id = $request->get("user_id");
         $stake_platform_id = $request->get("raffleId");
 
-        if(StakePlatform::where("id", $stake_platform_id)->value("is_open") == 0 && StakePlatform::where("id", $stake_platform_id)->value("is_close") == 1)
+        if(StakePlatform::where("platform_ref", $stake_platform_id)->value("is_open") == 0 && StakePlatform::where("platform_ref", $stake_platform_id)->value("is_close") == 1)
             return $utils->message("error", "Raffle is closed", 422);
 
 
-        if(StakePlatform::where("id",$stake_platform_id)->where("start_date", ">", \Carbon\Carbon::now())->exists())
+        if(StakePlatform::where("platform_ref",$stake_platform_id)->where("start_date", ">", \Carbon\Carbon::now())->exists())
             return $utils->message("error", "Raffle is not open yet", 422);
 
         if (!User::where("id", $user_id)->exists())
             return $utils->message("error", "User Does not Exist", 404);
 
-        $win_number = StakePlatform::where("id", $request->get("stake_platform_id"))->value("win_nos");
+        $win_number = StakePlatform::where("platform_ref",$stake_platform_id)->value("win_nos");
+        $maxWinnerCountFromDB = StakePlatform::where("platform_ref", $stake_platform_id)->value("max_winner_count");
+        $countWinners = StakePlatform::where("platform_ref", $stake_platform_id)->value("count_winners");
+        $winNoFromDB = StakePlatform::where("platform_ref", $stake_platform_id)->value("win_nos");
+
+        if ($maxWinnerCountFromDB == $countWinners && $winNoFromDB == $stake_number)
+            return $utils->message("error", "Number is Not Available", 422);
+
 
         if($win_number == $stake_number){
             $win = 1;
-            $stake_platform = StakePlatform::findOrFail($request->get("stake_platform_id"));
+            $stake_platform = StakePlatform::where("platform_ref", $stake_platform_id)->firstOrFail();
             $stake_platform->count_winners += 1;
             $stake_platform->update();
         } else{
@@ -125,7 +145,7 @@ class AgentController extends Controller
             return $utils->message("error", "User Not Found", 404);
 
         $agent_balance = Agent::where("user_id", $user_id)->value("wallet");
-        $price = StakePlatform::where("id", $stake_platform_id)->value("stake_price");
+        $price = StakePlatform::where("platform_ref", $stake_platform_id)->value("stake_price");
 
         if ($agent_balance >= $price){
             $balance = $agent_balance - $price;
@@ -140,49 +160,58 @@ class AgentController extends Controller
         if (Stake::where("ticket_id", $ticket_id)->exists())
             return $utils->message("error", "Network Error. Please Try again", 500);
 
-        $agent_id = Agent::where("user_id", $user_id)->value("id") ;;
-        $stake = new Stake;
-        $stake->user_id = $user_id;
-        $stake->customer_id = $agent_id;
-        $stake->ticket_id = $ticket_id;
-        $stake->stake_price = $price;
-        $stake->stake_number = $stake_number;
-        $stake->win = $win;
-        $stake->active = 1;
-        $stake->role = "Agent";
-        $stake->month = StakePlatform::where("id", $stake_platform_id)->value("month") ;
-        $stake->year = StakePlatform::where("id", $stake_platform_id)->value("year") ;
-        $stake->winning_tags_id = StakePlatform::where("id", $stake_platform_id)->value("winning_tags_id") ;
-        $stake->category_id = StakePlatform::where("id", $stake_platform_id)->value("category_id") ;
-        $stake->stake_platform_id = $stake_platform_id;
-        $stake->save();
+        return  DB::transaction(function () use ($request, $stake_number, $utils, $ticket_id, $user_id, $price, $stake_platform_id) {
+            try {
+                $platform_id = StakePlatform::where("platform_ref", $stake_platform_id)->value("id");
+                $agent_id = Agent::where("user_id", $user_id)->value("id");;
+                $stake = new AgentStakes();
+                $stake->user_id = $user_id;
+                $stake->agent_id = $agent_id;
+                $stake->ticket_id = $ticket_id;
+                $stake->stake_price = $price;
+                $stake->stake_number = $stake_number;
+                $stake->win = 0;
+                $stake->active = 1;
+                $stake->role = "Agent";
+                $stake->month = StakePlatform::where("platform_ref", $stake_platform_id)->value("month");
+                $stake->year = StakePlatform::where("platform_ref", $stake_platform_id)->value("year");
+                $stake->winning_tags_id = StakePlatform::where("platform_ref", $stake_platform_id)->value("winning_tags_id");
+                $stake->category_id = StakePlatform::where("platform_ref", $stake_platform_id)->value("category_id");
+                $stake->stake_platform_id = $platform_id;
+                $stake->save();
 
 
-        $transactionHistory = new CustomerTransactionHistory;
-        $transactionHistory->user_id = $user_id;
-        $transactionHistory->customer_id = $agent_id;
-        $transactionHistory->amount = $price;
-        $transactionHistory->transaction_type = "Debit";
-        $transactionHistory->description = "Payment for ticket " . $ticket_id;
-        $transactionHistory->transaction_ref = Str::random(10);
-        $transactionHistory->role = "Agent";
-        $transactionHistory->save();
+                $transactionHistory = new AgentTransactionHistory();
+                $transactionHistory->user_id = $user_id;
+                $transactionHistory->agent_id = $agent_id;
+                $transactionHistory->amount = $price;
+                $transactionHistory->transaction_type = "Debit";
+                $transactionHistory->description = "Payment for ticket " . $ticket_id;
+                $transactionHistory->transaction_ref = Str::random(10);
+                $transactionHistory->role = "Agent";
+                $transactionHistory->save();
 
-        $data = [
-            "winningTag" => \App\Models\WinningTags::where("id", $stake->winning_tags_id)->value("name"),
-            "stake_price" => $stake->stake_price,
-            "ticket_id" => $stake->ticket_id,
-            "created_at" => Carbon::parse($stake->created_at)->format("d M, Y")
-        ];
-        return $utils->message("success", $data, 200);
+                $data = [
+                    "winningTag" => \App\Models\WinningTags::where("id", $stake->winning_tags_id)->value("name"),
+                    "stake_price" => $stake->stake_price,
+                    "ticket_id" => $stake->ticket_id,
+                    "created_at" => Carbon::parse($stake->created_at)->format("d M, Y"),
+                    "address" => Agent::where("user_id", $user_id)->value("address"),
+                    "wallet" => Agent::where("user_id", $user_id)->value("wallet")
+                ];
+                return $utils->message("success", $data, 200);
 
+            } catch (\GuzzleHttp\Exception\ClientException $e) {
+                return $utils->message("error", $e->getMessage(), 400);
+            }
+        });
     }
 
     public function successfulPayment(Request $request, Utils $utils)
     {
 
         $request->validate([
-            "id" => "required|int",
+            "tx_ref" => "required|string",
             "amount" => "required|int"
         ]);
         $user_id = auth('sanctum')->user()->id;
@@ -201,7 +230,6 @@ class AgentController extends Controller
 
                 $agent_id = Agent::where("user_id", $user_id)->value("id");
 
-
                 $firstName = Agent::where("user_id", $user_id)->value("first_name");
                 $lastName = Agent::where("user_id", $user_id)->value("last_name");
                 $narration = $firstName . " " . $lastName . " Funded Account";
@@ -213,11 +241,11 @@ class AgentController extends Controller
                 Log::info("########## Response from Flutterwave #########", json_decode( json_encode($request->all()) , true));
 
 
-                $agent = Agent::where("user_id", $user_id)->firstOrFail();
+                $agent = Agent::lockForUpdate()->where("user_id", $user_id)->firstOrFail();
                 $agent->wallet += $amount;
                 $agent->update();
 
-                $funding = AgentFundingTransactions::find($request->get("id"));
+                $funding = AgentFundingTransactions::lockForUpdate()->where("company_ref", $request->get("tx_ref"))->firstOrFail();
                 $funding->narration = $narration;
                 $funding->balance_ba = $balance;
                 $funding->balance_aa = $total;
@@ -230,6 +258,17 @@ class AgentController extends Controller
                 $funding->transaction_id = $request->get("transaction_id");
                 $funding->flw_ref = $request->get("flw_ref");
                 $funding->update();
+
+                $agentTransaction = new AgentTransactionHistory();
+                $agentTransaction->user_id = $user_id;
+                $agentTransaction->agent_id = $agent_id;
+                $agentTransaction->amount = $amount;
+                $agentTransaction->transaction_type = "credit";
+                $agentTransaction->transaction_ref = $request->get("tx_ref");
+                $agentTransaction->role = "Agent";
+                $agentTransaction->description = "Funded Wallet with " . $amount;
+                $agentTransaction->save();
+
                 return $utils->message("success", "Payment Completed Successfully.", 200);
 
             } catch (\Throwable $e) {
@@ -238,17 +277,16 @@ class AgentController extends Controller
             }
         });
     }
-    public function updatePayment(Request $request, Utils $utils): JsonResponse
+    public function updatePayment(Request $request, Utils $utils)
     {
-        $request->validate([
-            "id" => "required|int"
-        ]);
-        return  DB::transaction(function () use ($request, $utils) {
+        $id = $request->get("id");
+        return  DB::transaction(function () use ($request, $utils, $id) {
             try {
 
-                if(AgentFundingTransactions::where("id", $request->get("id"))->value('status') !== "Completed"){
+
+                if(AgentFundingTransactions::where("id",$id)->value('status') !== "Completed"){
                     Log::info("########## Updating Cancelled Status  #########");
-                    $payment = AgentFundingTransactions::where("id", $request->get("id"))->firstOrFail();
+                    $payment = AgentFundingTransactions::lockForUpdate()->where("company_ref", $id)->firstOrFail();
                     $payment->status = $request->get("status");
                     $payment->update();
                     Log::info("########## Payment Status changed from Pending to Cancelled #########");
@@ -263,11 +301,12 @@ class AgentController extends Controller
         });
 
     }
-    public function createPayment(Request $request, Utils $utils): JsonResponse
+    public function createPayment(Request $request, Utils $utils)
     {
         $request->validate([
             "amount" => "required|int",
-            "status" => "required|string"
+            "status" => "required|string",
+            "ref" => "required|string"
         ]);
         return  DB::transaction(function () use ($request, $utils) {
             try {
@@ -287,7 +326,7 @@ class AgentController extends Controller
                 Log::info("########## Payment Initialization Data #########", json_decode($payment, true));
                 Log::info("########## Payment Initialization Saved #########");
 
-                return $utils->message("success", new AgentPaymentResource($payment), 200);
+                return $utils->message("success", new CreatePaymentResource($payment), 200);
 
             } catch (\Throwable $e) {
                 Log::error("########## Error Message #########");
@@ -324,16 +363,20 @@ class AgentController extends Controller
 
     public function getRaffles(Request $request, Utils $utils)
     {
-
-      return  $stakes =  DB::table('customers_stakes')
+        $user_id = auth('sanctum')->user()->id;
+        $stakes =  DB::table('customers_stakes')
             ->join('winning_tags', 'winning_tags.id', '=', 'customers_stakes.winning_tags_id')
             ->join('stake_platforms', 'stake_platforms.id', '=', 'customers_stakes.stake_platform_id')
-            ->where('stake_platforms.is_close', '=', 1)
-            ->where('customers_stakes.user_id', '=', 19)
-            ->select("winning_tags.name as winningTags", "customers_stakes.id as key", "customers_stakes.stake_price as stakePrice", "customers_stakes.created_at as date", "customers_stakes.stake_number as  numberPicked")
+            ->where('customers_stakes.user_id', '=', $user_id)
+            ->select("stake_platforms.is_close","winning_tags.name as winningTags", "customers_stakes.id as key", "customers_stakes.stake_price as stakePrice", "customers_stakes.created_at as date", "customers_stakes.stake_number as  numberPicked")
             ->get();
 
-        return $utils->message("success", $stakes, 200);
+        $data = [
+            "stakes" => $stakes,
+            "total" => 0
+        ];
+
+        return $utils->message("success", $data, 200);
     }
     /**
      * @OA\Get  (

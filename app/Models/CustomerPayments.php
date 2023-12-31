@@ -8,4 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class CustomerPayments extends Model
 {
     use HasFactory;
+
+
+    protected $hidden = [
+        "id",
+        "user_id",
+        "customer_id",
+        "role"
+    ];
 }

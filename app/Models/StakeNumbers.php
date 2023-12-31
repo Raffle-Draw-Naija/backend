@@ -9,5 +9,7 @@ class StakeNumbers extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        "stake_nos"
+    ];
 }

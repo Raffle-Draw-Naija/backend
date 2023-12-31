@@ -24,14 +24,16 @@ class NewCustomer extends Model
         'password'
     ];
 
+    protected $hidden = [
+        "id",
+        "user_id",
+        "password"
+    ];
     /**
      * The attributes that should be hidden for serialization.
      *
      * @var array<int, string>
      */
-    protected $hidden = [
-        'amount'
-    ];
 
     /**
      * Get the Stakes of a Customer

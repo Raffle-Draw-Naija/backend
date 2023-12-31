@@ -11,9 +11,28 @@ class StakePlatform extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        "platform_ref",
+        "winning_tags_id",
+        "start_day",
+        "month",
+        "year",
+        "stake_price",
+        "is_close",
+        "win_nos",
+        "is_open",
+        "count_winners",
+        "max_winner_count",
+        "start_date",
+        "end_date",
+        "stake_id",
+        "category_id"
+    ];
 
 
+    protected $hidden = [
+        "id",
+    ];
     public function winningTags(): BelongsTo
     {
         return $this->belongsTo(WinningTags::class, "winning_tags_id", "id");

@@ -11,8 +11,20 @@ class WinningTags extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        "win_tag_ref",
+        "identity",
+        "name",
+        "stake_price",
+        "category_id",
+        "artisan_category",
+        "image",
+        "sub_cat_id"
+    ];
 
+    protected $hidden = [
+        'id', 'category_id'
+    ];
 
 
     /**

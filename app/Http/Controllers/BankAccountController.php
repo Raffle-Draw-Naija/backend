@@ -15,15 +15,44 @@ use App\Models\Withdrawals;
 use App\Utils\Utils;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class BankAccountController extends Controller
 {
 
     /**
      * @OA\Get(
+     *     path="/api/v1/customer/account",
+     *     summary="Get all Bank Accounts",
+     *     tags={"Mobile"},
+     *     security={
+     *         {"sanctum": {}}
+     *     },
+     *     @OA\Response(response="200", description="Get all Bank Accounts"),
+     *     @OA\Response(response="401", description="Invalid credentials")
+     * )
+     */
+    public function getAccount(Request $request, Utils $utils)
+    {
+        $request->validate([
+            "user_id" => "required"
+        ]);
+        $user_id =  auth('sanctum')->user()->id;
+        if (BankAccount::where("user_id",$user_id)->exists())
+            return  $utils->message("error", "Account Not Found", 404);
+
+        $bankAccount = BankAccount::where("user_id", $user_id)->firstOrFail();
+        return  $utils->message("success", $bankAccount, 200);
+
+    }
+    /**
+     * @OA\Get(
      *     path="/api/v1/get-banks",
      *     summary="Get all Banks",
      *     tags={"General"},
+     *     security={
+     *         {"sanctum": {}}
+     *     },
      *     @OA\Response(response="200", description="Get all Bank Accounts"),
      *     @OA\Response(response="401", description="Invalid credentials")
      * )
@@ -79,27 +108,21 @@ class BankAccountController extends Controller
      *     path="/api/v1/customer/profile",
      *     summary="Get all Bank Accounts",
      *     tags={"Mobile"},
-     *     @OA\Parameter(
-     *         name="user_id",
-     *         in="query",
-     *         description="id of the user",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
+     *     security={
+     *         {"sanctum": {}}
+     *     },
      *     @OA\Response(response="200", description="Get all Bank Accounts"),
      *     @OA\Response(response="401", description="Invalid credentials")
      * )
      */
     public function getProfile(Request $request, Utils $utils): JsonResponse
     {
-        $request->validate([
-            "user_id" => "required|integer"
-        ]);
-        $accountDetails = User::where("id", $request->get("user_id"))->with(["profile", "bankAccount"])->firstOrFail();
-        $sum = CustomerTransactionHistory::where("user_id", $request->get("user_id"))->where("transaction_type", "Credit")->sum("amount");
-        $sums = Withdrawals::where("user_id", $request->get("user_id"))->sum("amount");
-        $stakeSum = Stake::where("user_id", $request->get("user_id"))->sum("stake_price");
-        $winSum = Stake::where("user_id", $request->get("user_id"))->where("win", 1)->sum("stake_price");
+        $user_id =  auth('sanctum')->user()->id;
+        $accountDetails = User::where("id", $user_id)->with(["profile", "bankAccount"])->firstOrFail();
+        $sum = CustomerTransactionHistory::where("user_id", $user_id)->where("transaction_type", "Credit")->sum("amount");
+        $sums = Withdrawals::where("user_id", $user_id)->sum("amount");
+        $stakeSum = Stake::where("user_id", $user_id)->sum("stake_price");
+        $winSum = Stake::where("user_id", $user_id)->where("win", 1)->sum("stake_price");
 
         $data = [
             "total_fund_added" => doubleval($sum),
@@ -110,26 +133,68 @@ class BankAccountController extends Controller
         ];
         return  $utils->message("success", $data, 200);
     }
+
+
+    /**
+     * @OA\Get (
+     *     path="/api/v1/get-stakes",
+     *      tags={"General"},
+     *     @OA\Parameter(
+     *         name="account_name",
+     *         in="query",
+     *         description="account_name",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *      ),
+     *     @OA\Parameter(
+     *         name="account_number",
+     *         in="query",
+     *         description="account_number",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *      ),
+     *     @OA\Parameter(
+     *         name="bank_code",
+     *         in="query",
+     *         description="bank_code",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *      ),
+     *     security={
+     *         {"sanctum": {}}
+     *     },
+     *     @OA\Response(response="200", description="Getting Stake successful", @OA\JsonContent()),
+     *     @OA\Response(response="400", description="Bad Request", @OA\JsonContent()),
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *
+     * )
+     */
     public function store(Request $request, Utils $utils)
     {
         $request->validate([
             "account_name" => "required|string",
-            "account_no" => "required|integer",
-            "bank" => "required|string",
-            "user_id" => "required|integer"
+            "account_number" => "required|integer",
+            "bank_code" => "required|string"
         ]);
-        if(BankAccount::where("user_id", $request->get("user_id"))->exists())
+        $user_id =  auth('sanctum')->user()->id;
+        if(BankAccount::where("user_id",$user_id)->exists())
             return  $utils->message("error", "Account already Exists", 400);
 
-        $bank = Banks::where("code", $request->get("bank"))->value("name");
-         $bankAccount = new BankAccount();
-         $bankAccount->user_id = $request->get("user_id");
-         $bankAccount->account_no = $request->get("account_no");
-         $bankAccount->bank_code = $request->get("bank");
-         $bankAccount->bank = $bank;
-         $bankAccount->save();
-
-        return  $utils->message("success", "Account Details Uploaded Successfully.", 200);
+        return  DB::transaction(function () use ($request, $utils, $user_id){
+            try {
+                $bank = Banks::where("code", $request->get("bank"))->value("name");
+                 $bankAccount = new BankAccount();
+                 $bankAccount->user_id = $user_id;
+                 $bankAccount->account_number = $request->get("account_number");
+                 $bankAccount->bank_code = $request->get("bank_code");
+                 $bankAccount->account_name = $request->get("account_name");
+                 $bankAccount->bank = $bank;
+                 $bankAccount->save();
+                 return  $utils->message("success", "Account Details Uploaded Successfully.", 200);
+            } catch (\GuzzleHttp\Exception\ClientException $e) {
+                return $utils->message("error", $e->getMessage() , 400);
+            }
+        });
 
     }
 }

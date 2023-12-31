@@ -17,6 +17,7 @@ use App\Utils\Utils;
 use App\Models\Categories;
 use App\Models\WinningTags;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 
 class WinningTagsController extends Controller
@@ -27,6 +28,9 @@ class WinningTagsController extends Controller
      *     path="/api/v1/get-machines",
      *     summary="Get Machines",
      *     tags={"General"},
+     *     security={
+     *         {"sanctum": {}}
+     *     },
      *     @OA\Response(response="200", description="Get Machines"),
      * )
      */
@@ -42,12 +46,24 @@ class WinningTagsController extends Controller
     {
 
          $request->validate([
-            "stake_platform_id" => "required"
+            "stake_platform_id" => "required",
+            "win_no" => "required",
          ]);
          $stake_platform_id = $request->get("stake_platform_id");
-         Stake::where("stake_platform_id", $stake_platform_id)->update(["active" => 0]);
+         $winNo = $request->get("win_no");
+        $stakePlatformId = StakePlatform::where("platform_ref", $stake_platform_id)->value("id");
+        Stake::where("stake_platform_id", $stakePlatformId)->where("stake_number", $winNo)->update(["win" => 1]);
 
-         $stake_platform = StakePlatform::findOrFail($stake_platform_id);
+        $winNoFromDB = StakePlatform::where("id", $stakePlatformId)->value("win_nos");
+
+
+        if ($winNoFromDB == $winNo){
+            $stake_platforms = StakePlatform::where("platform_ref", $stake_platform_id)->firstOrFail();
+            $stake_platforms->count_winners += 1;
+            $stake_platforms->update();
+        }
+
+         $stake_platform = StakePlatform::where("platform_ref", $stake_platform_id)->firstOrFail();
          $stake_platform->is_close = 1;
          $stake_platform->is_open = 0;
          $stake_platform->update();
@@ -65,6 +81,9 @@ class WinningTagsController extends Controller
      *     path="/api/v1/category/winning-tags",
      *     summary="Get Machines",
      *     tags={"General"},
+     *     security={
+     *         {"sanctum": {}}
+     *     },
      *     @OA\Parameter(
      *         name="category_id",
      *         in="query",
@@ -73,6 +92,8 @@ class WinningTagsController extends Controller
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Response(response="200", description="Get category id", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Invalid credentials")
+
      * )
      */
     public function getTag(Request $request, Utils $utils)
@@ -80,7 +101,9 @@ class WinningTagsController extends Controller
         $request->validate([
             "category_id" => 'required'
         ]);
-        $winningTags = WinningTags::where("category_id", $request->get("category_id"))->get();
+
+        $id = Categories::where("cat_ref", $request->get("category_id"))->value("id");
+        $winningTags = WinningTags::where("category_id", $id)->get();
         return $utils->message("Success", $winningTags, 200);
     }
     /**
@@ -100,6 +123,7 @@ class WinningTagsController extends Controller
      */
     public function adminGetTags($id, Utils $utils)
     {
+        $id = Categories::where("cat_ref", $id)->value("id");
         $winningTags = WinningTags::where("category_id",$id)->get();
         return $utils->message("Success", $winningTags, 200);
     }
@@ -127,8 +151,14 @@ class WinningTagsController extends Controller
 
     public function getRafflesWithId($id, Utils $utils)
     {
-
-        $stakes = StakePlatform::where("winning_tags_id", $id)->with(["winningTags","categories"])->get();
+        $id = WinningTags::where("win_tag_ref", $id)->value("id");
+        $stakes = StakePlatform::where("winning_tags_id", $id)
+                    ->whereDate('start_date', '<=', Carbon::now())
+                    ->whereDate('end_date', '>=', Carbon::now())
+                    ->with(["winningTags"])
+                    ->where("is_open", 1)
+                    ->orderBy("created_at", "DESC")
+                    ->get();
         return $utils->message("success", StakeAgentPlatformResource::collection($stakes), 200);
     }
 
@@ -143,7 +173,7 @@ class WinningTagsController extends Controller
      */
     public function getSingleTag($id, Utils $utils)
     {
-
+        $id = WinningTags::where("win_tag_ref", $id)->value("id");
         $winningTags = WinningTags::findOrFail($id);
         return $utils->message("Success", $winningTags, 200);
     }
@@ -153,6 +183,9 @@ class WinningTagsController extends Controller
      *     path="/api/v1/get-tools",
      *     summary="Get Tools",
      *     tags={"General"},
+     *     security={
+     *         {"sanctum": {}}
+     *     },
      *     @OA\Response(response="200", description="Get Tools"),
      * )
      */
@@ -169,6 +202,9 @@ class WinningTagsController extends Controller
      *     path="/api/v1/winning-tags",
      *     summary="Get all winning tags",
      *     tags={"General"},
+     *     security={
+     *         {"sanctum": {}}
+     *     },
      *     @OA\Response(response="200", description="Get all winning tags"),
      *     @OA\Response(response="401", description="Invalid credentials")
      * )

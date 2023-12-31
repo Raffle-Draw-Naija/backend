@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\TokenAbility;
 use App\Execs\Execs;
 use App\Http\Resources\StatesResource;
 use App\Http\Resources\UserResource;
@@ -15,7 +16,9 @@ use App\Models\Stake;
 use App\Models\States;
 use App\Models\User;
 use App\Utils\Utils;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -26,16 +29,100 @@ use App\Http\Requests\UserRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Sanctum\PersonalAccessToken;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class AuthController extends Controller
 {
 
+    /**
+     * @OA\Post    (
+     *     path="/api/v1/refresh-token",
+     *      tags={"General"},
+     *     security={
+     *         {"sanctum": {}}
+     *     },
+     *     @OA\Response(response="200", description="Pin Validate successful", @OA\JsonContent()),
+     *     @OA\Response(response="400", description="Bad Request", @OA\JsonContent()),
+     *     @OA\Response(response="404", description="User Not Found", @OA\JsonContent()),
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *
+     * )
+     */
+    public function refreshToken(Request $request)
+    {
+        return 1;
+        $accessToken = $request->user()->createToken('access_token', [\App\Enums\TokenAbility::ACCESS_API->value], \Carbon\Carbon::now()->addSeconds(15));
+
+        return ['token' => $accessToken->plainTextToken];
+
+    }
+    /**
+     * @OA\Patch   (
+     *     path="/api/v1/customer/update/profile",
+     *      tags={"Mobile"},
+     *
+     *     security={
+     *         {"sanctum": {}}
+     *     },
+     *     @OA\Parameter(
+     *         name="first_name",
+     *         in="query",
+     *         description="first_name",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="last_name",
+     *         in="query",
+     *         description="last_name",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="email",
+     *         in="query",
+     *         description="email",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="phone",
+     *         in="query",
+     *         description="phone",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(response="200", description="Pin Validate successful", @OA\JsonContent()),
+     *     @OA\Response(response="400", description="Bad Request", @OA\JsonContent()),
+     *     @OA\Response(response="404", description="User Not Found", @OA\JsonContent()),
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *
+     * )
+     */
+    public function updateProfile(Request $request, Utils $utils)
+    {
+        $request->validate([
+            "first_name" => "sometimes|required",
+            "last_name" => "sometimes|required",
+            "email" => "sometimes|required",
+            "phone" => "sometimes|required"
+        ]);
+        $user_id = auth('sanctum')->user()->id;
+
+        $customer = NewCustomer::findOrFail($user_id);
+        $customer->first_name = $request->get("first_name");
+        $customer->last_name = $request->get("last_name");
+        $customer->email = $request->get("email");
+        $customer->phone = $request->get("phone");
+        $customer->update();
+
+        return $utils->message("success", "Profile Updated Successfully.", 200);
+    }
 
     /**
      * @OA\Get  (
      *     path="/api/v1/get-flw-pub-key",
      *      tags={"General"},
+     *     security={
+     *         {"sanctum": {}}
+     *     },
      *     @OA\Response(response="200", description="Pin Validate successful", @OA\JsonContent()),
      *     @OA\Response(response="400", description="Bad Request", @OA\JsonContent()),
      *     @OA\Response(response="404", description="User Not Found", @OA\JsonContent()),
@@ -54,6 +141,9 @@ class AuthController extends Controller
      * @OA\Get  (
      *     path="/api/v1/get-flw-sec-key",
      *      tags={"General"},
+     *     security={
+     *         {"sanctum": {}}
+     *     },
      *     @OA\Response(response="200", description="Pin Validate successful", @OA\JsonContent()),
      *     @OA\Response(response="400", description="Bad Request", @OA\JsonContent()),
      *     @OA\Response(response="404", description="User Not Found", @OA\JsonContent()),
@@ -71,6 +161,9 @@ class AuthController extends Controller
      * @OA\Get  (
      *     path="/api/v1/get-flw-enc-key",
      *      tags={"General"},
+     *     security={
+     *         {"sanctum": {}}
+     *     },
      *     @OA\Response(response="200", description="Pin Validate successful", @OA\JsonContent()),
      *     @OA\Response(response="400", description="Bad Request", @OA\JsonContent()),
      *     @OA\Response(response="404", description="User Not Found", @OA\JsonContent()),
@@ -89,19 +182,15 @@ class AuthController extends Controller
      *     path="/api/v1/validate-pin",
      *      tags={"General"},
      *     @OA\Parameter(
-     *         name="user_id",
-     *         in="query",
-     *         description="user_id",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
      *         name="pin",
      *         in="query",
      *         description="pin",
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
+     *     security={
+     *         {"sanctum": {}}
+     *     },
      *     @OA\Response(response="200", description="Pin Validate successful", @OA\JsonContent()),
      *     @OA\Response(response="400", description="Bad Request", @OA\JsonContent()),
      *     @OA\Response(response="404", description="User Not Found", @OA\JsonContent()),
@@ -112,16 +201,16 @@ class AuthController extends Controller
     public function validatePin(Request $request, Utils $utils)
     {
         $request->validate([
-            "user_id" => "required|int",
             "pin" => "required|digits:6"
         ]);
+        $user_id = auth('sanctum')->user()->id;
 
         if (!User::where("id", $request->get("user_id"))->exists())
             return $utils->message("error", "User Not Found", 404);
 
-        $pinFromDB = User::where("id", $request->get("user_id"))->value("pin");
+        $pinFromDB = User::where("id", $user_id)->value("pin");
         if (!$utils->validatePin($request, $pinFromDB, $utils))
-            return   $utils->message("error", "Invalid Pin", 401);
+            return   $utils->message("error", "Invalid Pin", 422);
 
         return $utils->message("success", "Pin Validated Successfully.", 200);
 
@@ -131,19 +220,15 @@ class AuthController extends Controller
      *     path="/api/v1/create-pin",
      *      tags={"General"},
      *     @OA\Parameter(
-     *         name="user_id",
-     *         in="query",
-     *         description="user_id",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
      *         name="pin",
      *         in="query",
      *         description="pin",
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
+     *     security={
+     *         {"sanctum": {}}
+     *     },
      *     @OA\Response(response="200", description="Pin Created successful", @OA\JsonContent()),
      *     @OA\Response(response="400", description="Bad Request", @OA\JsonContent()),
      *     @OA\Response(response="404", description="User Not Found", @OA\JsonContent()),
@@ -157,15 +242,21 @@ class AuthController extends Controller
            "user_id" => "required|int",
            "pin" => "required|int|digits:6"
         ]);
+        $user_id = auth('sanctum')->user()->id;
 
-        if (!User::where("id", $request->get("user_id"))->exists())
+        if (!User::where("id", $user_id)->exists())
             return $utils->message("error", "User Not Found", 404);
 
-        $user = User::find($request->get("user_id"));
-        $user->pin = Hash::make($request->get("pin"));
-        $user->update();
-        return $utils->message("success", "Pin Updated Successfully.", 200);
-
+        return  DB::transaction(function () use ($request, $utils, $user_id) {
+            try {
+                $user = User::lockForUpdate()->find($user_id);
+                $user->pin = Hash::make($request->get("pin"));
+                $user->update();
+                return $utils->message("success", "Pin Updated Successfully.", 200);
+            } catch (\GuzzleHttp\Exception\ClientException $e) {
+                return $utils->message("error", $e->getMessage(), 400);
+            }
+        });
     }
     public function getStates(Utils $utils)
     {
@@ -193,13 +284,13 @@ class AuthController extends Controller
     {
         try{
 
-            $user =  $execs->createUser($userRequest, $utils);
+            $user =  $execs->createUser($userRequest, $utils, "Agent");
             $agent = $execs->createAgent($user->id,  $userRequest, $utils);
             $data = [
                 "user" => New UserResource($user),
                 "agent" => $agent
             ];
-//        Mail::mailer("no-reply")->to($userRequest->get("email"))->send(new VerifyCodeMail($mailData));
+//            Mail::mailer("no-reply")->to($userRequest->get("email"))->send(new VerifyCodeMail($mailData));
             return $utils->message("success", $data, 200);
         }catch (\Throwable $e) {
             Log::error("########## " . $e->getMessage() . " #########");
@@ -217,6 +308,9 @@ class AuthController extends Controller
      * @OA\Get (
      *     path="/api/v1/customer/get-notifications",
      *      tags={"Mobile"},
+     *     security={
+     *         {"sanctum": {}}
+     *     },
      *     @OA\Parameter(
      *         name="user_id",
      *         in="query",
@@ -377,6 +471,9 @@ class AuthController extends Controller
      * @OA\Post(
      *     path="/api/v1/customer/forgot-password",
      *      tags={"Mobile"},
+     *     security={
+     *         {"sanctum": {}}
+     *     },
      *     @OA\Parameter(
      *         name="email",
      *         in="query",
@@ -431,6 +528,9 @@ class AuthController extends Controller
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
+     *     security={
+     *         {"sanctum": {}}
+     *     },
      *     @OA\Response(response="200", description="Registration successful"),
      *     @OA\Response(response="401", description="Invalid credentials")
      * )
@@ -516,6 +616,9 @@ class AuthController extends Controller
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
+     *     security={
+     *         {"sanctum": {}}
+     *     },
      *     @OA\Response(response="200", description="Login successful", @OA\JsonContent()),
      *     @OA\Response(response="401", description="Unauthorized", @OA\JsonContent()),
      *     @OA\Response(response="422", description="Validation Error", @OA\JsonContent())
@@ -535,20 +638,27 @@ class AuthController extends Controller
 
         $loginRequest->get("device_id");
         $authUser = Auth::user();
-        $success['token'] =  $authUser->createToken('MyAuthApp')->plainTextToken;
+
+        $token = $authUser->createToken('access_token', [TokenAbility::ACCESS_API->value], \Carbon\Carbon::now()->addDays(15));
+        $rtoken = $authUser->createToken('refresh_token', [TokenAbility::ISSUE_ACCESS_TOKEN->value],\Carbon\Carbon::now()->addDays(7));
+        $success['token']  = $token->plainTextToken ;
+        $success['refreshToken']  = $rtoken->plainTextToken;
         $success['first_name'] =   $user->first_name;
         $success['last_name'] =  $user->last_name;
         $success['username'] =  $authUser->username;
-        $success['email'] =  $authUser->email;
-        $success['phone'] =  $user->phone;
-        $success['id'] =  $authUser->id;
-        $success['role'] =  $authUser->role;
+        $success['wallet'] = Agent::where("user_id", $authUser->id)->value("wallet");
         return $utils->message("success", $success, 200);
     }
-    public function logout(User $user, Utils $utils): JsonResponse
+    public function logout(Request $request, User $user, Utils $utils)
     {
-        auth()->logout();
-        $user->tokens()->delete();
+        // Get bearer token from the request
+        $accessToken = $request->bearerToken();
+
+        // Get access token from database
+        $token = PersonalAccessToken::findToken($accessToken);
+
+        // Revoke token
+        $token->delete();
         return $utils->message("success", "User successfully signed out", 200);
     }
 }

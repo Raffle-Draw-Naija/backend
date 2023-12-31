@@ -8,4 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class AgentTransactions extends Model
 {
     use HasFactory;
+
+    protected $hidden = [
+        "id",
+        "user_id"
+    ];
 }

@@ -10,17 +10,18 @@ class Categories extends Model
 {
     use HasFactory;
     // this is the part that is listing all the categories
-    protected $guarded = [];
     protected $table = 'categories';
     protected $fillable = [
-
         'id',
         'name',
-        'cat'
+        'cat_ref'
 
     ];
 
 
+    protected $hidden = [
+        "id"
+    ];
     /**
      * Get the Stakes of a Customer
      */

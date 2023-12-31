@@ -15,4 +15,8 @@ class WinList extends Model
         'phone',
         'win',
     ];
+
+    protected $hidden = [
+        "id"
+    ];
 }

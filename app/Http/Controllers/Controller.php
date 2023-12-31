@@ -12,14 +12,14 @@ use Illuminate\Routing\Controller as BaseController;
  *    version="1.0.0",
  * ),
  *   @OA\SecurityScheme(
- *       securityScheme="bearerAuth",
- *       in="header",
- *       name="bearerAuth",
- *       type="http",
- *       scheme="bearer",
- *       bearerFormat="JWT",
+ *       securityScheme="sanctum",
+ *      type = "apiKey",
+ *       description = "Enter token in format (Bearer <token>)",
+ *       name = "Authorization",
+ *       in = "header",
  *    ),
  */
+
 class Controller extends BaseController
 {
     use AuthorizesRequests, ValidatesRequests;

@@ -11,7 +11,29 @@ class Withdrawals extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        "user_id",
+        "customer_id",
+        "bank_code",
+        "account_name",
+        "trx_date",
+        "currency",
+        "debit_currency",
+        "fee",
+        "reference",
+        "requires_approval",
+        "is_approved",
+        "customer_id",
+        "customer_id",
+        "customer_id",
+        "bank_account_id",
+        "amount",
+        "narration",
+        "trx_ref",
+        "status",
+        "bank_name",
+        "account_number"
+    ];
 
 
     public function user(): BelongsTo

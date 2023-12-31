@@ -9,5 +9,16 @@ class WinNumbers extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        "identity",
+        "win_num",
+        "category_id",
+        "winning_tag_id",
+        "month",
+        "year"
+    ];
+
+    protected $hidden = [
+        "id"
+        ];
 }

@@ -20,7 +20,20 @@ class User extends Authenticatable
      * @var array<int, string>
      */
 
-    protected $guarded = [];
+    protected $fillable = [
+        "identity",
+        "username",
+        "verified",
+        "password",
+        "email",
+        "verify_code",
+        "password_reset",
+        "device_id",
+        "role",
+        "role",
+        "bank_code",
+        "pin"
+    ];
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -64,4 +77,8 @@ class User extends Authenticatable
     }
 
 
+    public function agents(): HasMany
+    {
+        return $this->hasMany('App\Models\Agents', "user_id");
+    }
 }

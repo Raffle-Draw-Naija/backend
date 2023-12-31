@@ -5,12 +5,502 @@
         "version": "1.0.0"
     },
     "paths": {
+        "/api/v1/agent/get-transactions": {
+            "get": {
+                "tags": [
+                    "Agent"
+                ],
+                "summary": "get Transactions",
+                "operationId": "22eb74e9371f2884e0ceb1631cba54a4",
+                "responses": {
+                    "200": {
+                        "description": "Get category id",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agent/get-raffle-status": {
+            "get": {
+                "tags": [
+                    "Agent"
+                ],
+                "summary": "Get Machines",
+                "operationId": "8953e2cfbd642d43417ca846027832ff",
+                "responses": {
+                    "200": {
+                        "description": "Get category id",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agent/all-highest-number": {
+            "get": {
+                "tags": [
+                    "Agent"
+                ],
+                "summary": "Get Machines",
+                "operationId": "bb0ba17f52198448ea721d4f76bd3fc1",
+                "responses": {
+                    "200": {
+                        "description": "Get category id",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agent/all-stakes": {
+            "get": {
+                "tags": [
+                    "Agent"
+                ],
+                "summary": "Get Machines",
+                "operationId": "65b36376ccb9ace8f3e74fc2927155e9",
+                "parameters": [
+                    {
+                        "name": "agent_id",
+                        "in": "query",
+                        "description": "id of the agent",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get category id",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agent/get-raffle": {
+            "get": {
+                "tags": [
+                    "Agent"
+                ],
+                "summary": "Get Withdrawal",
+                "operationId": "c0926e05316be9bc91edfa3ba99a0205",
+                "parameters": [
+                    {
+                        "name": "agent_id",
+                        "in": "query",
+                        "description": "id of the user",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Getting withdrawal Sucessful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/customer/update/profile": {
+            "patch": {
+                "tags": [
+                    "Mobile"
+                ],
+                "operationId": "596b063491107ec3ba1b1e65ad234cee",
+                "parameters": [
+                    {
+                        "name": "first_name",
+                        "in": "query",
+                        "description": "first_name",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "last_name",
+                        "in": "query",
+                        "description": "last_name",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "description": "email",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "phone",
+                        "in": "query",
+                        "description": "phone",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Pin Validate successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/get-flw-pub-key": {
+            "get": {
+                "tags": [
+                    "General"
+                ],
+                "operationId": "6d5428dcdc447aedfd488cbc56ac60cc",
+                "responses": {
+                    "200": {
+                        "description": "Pin Validate successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/get-flw-sec-key": {
+            "get": {
+                "tags": [
+                    "General"
+                ],
+                "operationId": "a3f032b14cb27c29c0c9eabde6c41cc7",
+                "responses": {
+                    "200": {
+                        "description": "Pin Validate successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/get-flw-enc-key": {
+            "get": {
+                "tags": [
+                    "General"
+                ],
+                "operationId": "8fabe5ec5a3e09abb02b876fad69e03b",
+                "responses": {
+                    "200": {
+                        "description": "Pin Validate successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/validate-pin": {
+            "post": {
+                "tags": [
+                    "General"
+                ],
+                "operationId": "784c87e3d098959a8c0b53890e8ba1cd",
+                "parameters": [
+                    {
+                        "name": "pin",
+                        "in": "query",
+                        "description": "pin",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Pin Validate successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/create-pin": {
+            "patch": {
+                "tags": [
+                    "General"
+                ],
+                "operationId": "ea72162447dac4f76d3ff84da839f9b8",
+                "parameters": [
+                    {
+                        "name": "pin",
+                        "in": "query",
+                        "description": "pin",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Pin Created successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/v1/customer/get-notifications": {
             "get": {
                 "tags": [
                     "Mobile"
                 ],
                 "operationId": "83af0878f7a6db980e114755c78bd213",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "description": "user_id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Registration successful",
@@ -36,7 +526,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/v1/customer/register-user": {
@@ -99,6 +594,15 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "device_id",
+                        "in": "query",
+                        "description": "device_id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
@@ -137,9 +641,9 @@
                 "operationId": "e1065d2568b66294d40c94a0b63c3948",
                 "parameters": [
                     {
-                        "name": "email",
+                        "name": "username",
                         "in": "query",
-                        "description": "email",
+                        "description": "username",
                         "required": true,
                         "schema": {
                             "type": "string"
@@ -157,10 +661,28 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Verification successful"
+                        "description": "Verification successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     },
                     "404": {
-                        "description": "Code Not Found"
+                        "description": "Code Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
                 }
             }
@@ -189,7 +711,12 @@
                     "401": {
                         "description": "Invalid credentials"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/v1/customer/update/password": {
@@ -234,7 +761,12 @@
                     "401": {
                         "description": "Invalid credentials"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/v1/customer/verify-otp": {
@@ -317,6 +849,15 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "device_id",
+                        "in": "query",
+                        "description": "Device ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
@@ -344,7 +885,56 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/customer/account": {
+            "get": {
+                "tags": [
+                    "Mobile"
+                ],
+                "summary": "Get all Bank Accounts",
+                "operationId": "0b1d29f84ff557e02d9212bfa78cdde6",
+                "responses": {
+                    "200": {
+                        "description": "Get all Bank Accounts"
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/get-banks": {
+            "get": {
+                "tags": [
+                    "General"
+                ],
+                "summary": "Get all Banks",
+                "operationId": "113f5c7e72c2f1e8d0e377025b151a9f",
+                "responses": {
+                    "200": {
+                        "description": "Get all Bank Accounts"
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/v1/admin/bank-accounts/all": {
@@ -371,17 +961,6 @@
                 ],
                 "summary": "Get all Bank Accounts",
                 "operationId": "e331c03c3c41a841193290b7404925d3",
-                "parameters": [
-                    {
-                        "name": "user_id",
-                        "in": "query",
-                        "description": "id of the user",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Get all Bank Accounts"
@@ -389,7 +968,12 @@
                     "401": {
                         "description": "Invalid credentials"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/v1/admin/categories": {
@@ -406,7 +990,12 @@
                     "401": {
                         "description": "Invalid credentials"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/v1/admin/category/create": {
@@ -486,27 +1075,21 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
-        "/api/v1/customer/get-stake-history": {
+        "/api/v1/customer/raffles/all": {
             "get": {
                 "tags": [
                     "Mobile"
                 ],
                 "summary": "Get Stake History",
-                "operationId": "bcd0f57b8d8787cdf4c3263e23a2f53a",
-                "parameters": [
-                    {
-                        "name": "user_id",
-                        "in": "query",
-                        "description": "id of the user",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
+                "operationId": "8064a960a63e7cdfc96dc431d11ceb37",
                 "responses": {
                     "200": {
                         "description": "Get Stake Items"
@@ -525,7 +1108,45 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/customer/raffles/active": {
+            "get": {
+                "tags": [
+                    "Mobile"
+                ],
+                "summary": "Get Stake History",
+                "operationId": "38701a42f95fba6343f1b959497a2b0d",
+                "responses": {
+                    "200": {
+                        "description": "Get Stake Items"
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "422": {
+                        "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/v1/customer/dashboard": {
@@ -535,17 +1156,6 @@
                 ],
                 "summary": "Get Dashboard Items",
                 "operationId": "de6a11cb9d0de10e87007ce53ac69a93",
-                "parameters": [
-                    {
-                        "name": "user_id",
-                        "in": "query",
-                        "description": "id of the user",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Get Dashboard Items",
@@ -579,7 +1189,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/v1/staking/open": {
@@ -653,15 +1268,6 @@
                 "summary": "Get Dashboard Items",
                 "operationId": "741d6f4439c64eeacd5f4d0fb29fd03c",
                 "parameters": [
-                    {
-                        "name": "user_id",
-                        "in": "query",
-                        "description": "User Id",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
                     {
                         "name": "category_id",
                         "in": "query",
@@ -741,6 +1347,14 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "customer_id",
+                        "in": "query",
+                        "description": "Id of the customer",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
@@ -758,7 +1372,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/v1/customer/update/name": {
@@ -842,7 +1461,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/v1/admin/stake/numbers/add": {
@@ -881,6 +1505,156 @@
                         }
                     }
                 }
+            }
+        },
+        "/api/v1/customer/check-balance": {
+            "post": {
+                "tags": [
+                    "Mobile"
+                ],
+                "operationId": "fd526b74450d24e1c51d0fa05309c908",
+                "parameters": [
+                    {
+                        "name": "amount",
+                        "in": "query",
+                        "description": "amount",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Balance is greater than amount",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/get-wins": {
+            "get": {
+                "tags": [
+                    "General"
+                ],
+                "operationId": "6b21ff7aa529c7a1db656e896d8b1616",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "description": "user_id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Getting Stake successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/get-stakes": {
+            "get": {
+                "tags": [
+                    "General"
+                ],
+                "operationId": "0b2ff4608d269ccb7e7eef95febc6994",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "description": "user_id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Getting Stake successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/v1/admin/customer/get-history": {
@@ -935,24 +1709,13 @@
                 }
             }
         },
-        "/api/v1/customer/get-transaction-history": {
-            "post": {
+        "/api/v1/customer/get-debits-history": {
+            "get": {
                 "tags": [
                     "Mobile"
                 ],
                 "summary": "List debit transactions",
-                "operationId": "825ed3f074503f5d786331c7eb137387",
-                "parameters": [
-                    {
-                        "name": "user_id",
-                        "in": "query",
-                        "description": "User IDr",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
+                "operationId": "5a7805a8ca2c223d469fd2d4404d4103",
                 "responses": {
                     "200": {
                         "description": "List debit transactions"
@@ -960,7 +1723,51 @@
                     "401": {
                         "description": "Invalid credentials"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/customer/get-credit-history": {
+            "get": {
+                "tags": [
+                    "Mobile"
+                ],
+                "operationId": "219b23155faaea01e2111a3b75c35517",
+                "responses": {
+                    "200": {
+                        "description": "Registration successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/v1/customer/get-history": {
@@ -970,11 +1777,99 @@
                 ],
                 "summary": "List Credit transactions",
                 "operationId": "1a75a42fb026d50361ce9aab9ad63f4f",
+                "responses": {
+                    "200": {
+                        "description": "List transactions"
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/customer/get-withdrawal": {
+            "get": {
+                "tags": [
+                    "Mobile"
+                ],
+                "summary": "Get Withdrawal",
+                "operationId": "e59587b5bb140524379081ba9ba4fb12",
+                "responses": {
+                    "200": {
+                        "description": "Getting withdrawal Sucessful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/customer/withdrawal": {
+            "post": {
+                "tags": [
+                    "Mobile"
+                ],
+                "summary": "Add Fund",
+                "operationId": "9a2e825cd26a604d175b3d7b75bd4b35",
                 "parameters": [
                     {
-                        "name": "user_id",
+                        "name": "amount",
                         "in": "query",
-                        "description": "List transactions",
+                        "description": "Amount",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "bank_code",
+                        "in": "query",
+                        "description": "Bank Code",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "account_number",
+                        "in": "query",
+                        "description": "account number",
                         "required": true,
                         "schema": {
                             "type": "string"
@@ -983,31 +1878,53 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "List transactions"
+                        "description": "Withdrawal Successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     },
-                    "401": {
-                        "description": "Invalid credentials"
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/v1/customer/add-fund": {
-            "get": {
+            "post": {
                 "tags": [
                     "Mobile"
                 ],
                 "summary": "Add Fund",
-                "operationId": "4d245f31310c27908c3471c0f30b2fef",
+                "operationId": "9b95c9b0ff614fbf79422bbd4677aef6",
                 "parameters": [
-                    {
-                        "name": "user_id",
-                        "in": "query",
-                        "description": "id of the user",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
                     {
                         "name": "amount",
                         "in": "query",
@@ -1025,15 +1942,6 @@
                         "schema": {
                             "type": "string"
                         }
-                    },
-                    {
-                        "name": "description",
-                        "in": "query",
-                        "description": "description",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
                     }
                 ],
                 "responses": {
@@ -1043,7 +1951,12 @@
                     "401": {
                         "description": "Invalid credentials"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/v1/customer/get-win-history": {
@@ -1119,7 +2032,12 @@
                     "200": {
                         "description": "Get Machines"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/v1/category/winning-tags": {
@@ -1148,8 +2066,16 @@
                                 "schema": {}
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/v1/admin/winning-tags": {
@@ -1159,6 +2085,36 @@
                 ],
                 "summary": "Get Machines",
                 "operationId": "13446f60965839d7ab395478fd481369",
+                "parameters": [
+                    {
+                        "name": "category_id",
+                        "in": "query",
+                        "description": "category id of the winning tag",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get category id",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agent/winning-tags": {
+            "get": {
+                "tags": [
+                    "General"
+                ],
+                "summary": "Get Machines",
+                "operationId": "e02433d475fa5e803a828b10e7c52abf",
                 "parameters": [
                     {
                         "name": "category_id",
@@ -1207,7 +2163,12 @@
                     "200": {
                         "description": "Get Tools"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/v1/winning-tags": {
@@ -1224,7 +2185,12 @@
                     "401": {
                         "description": "Invalid credentials"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/v1/admin/winning-tags/create": {
@@ -1284,12 +2250,11 @@
     },
     "components": {
         "securitySchemes": {
-            "bearerAuth": {
-                "type": "http",
-                "name": "bearerAuth",
-                "in": "header",
-                "bearerFormat": "JWT",
-                "scheme": "bearer"
+            "sanctum": {
+                "type": "apiKey",
+                "description": "Enter token in format (Bearer <token>)",
+                "name": "Authorization",
+                "in": "header"
             }
         }
     }

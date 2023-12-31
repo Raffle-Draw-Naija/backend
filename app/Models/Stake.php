@@ -16,8 +16,14 @@ class Stake extends Model
     protected $fillable = [
 
         'user_id',
+        'winning_tags_id',
+        'category_id',
+        'customer_id',
+        'payment_method',
+        'active',
+        'stake_platform_id',
+        'role',
         'ticket_id',
-        'sub_cat_id',
         'stake_price',
         'stake_number',
         'win',
@@ -27,6 +33,11 @@ class Stake extends Model
     ];
 
 
+    protected $hidden = [
+        "id",
+        "user_id",
+        "customer_id"
+    ];
     /**
      * Get the Stakes of a Customer
      */

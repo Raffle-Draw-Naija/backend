@@ -11,8 +11,20 @@ class BankAccount extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        "user_id",
+        "account_number",
+        "account_name",
+        "bank_code",
+        "bank",
+        "customer_id",
+    ];
 
+    protected $hidden = [
+        "id",
+        "user_id",
+        "customer_id"
+    ];
     public function user(): BelongsTo
     {
         return $this->belongsTo('App\Models\User', "user_id");
