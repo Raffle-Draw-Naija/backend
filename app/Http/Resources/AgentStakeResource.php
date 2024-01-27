@@ -17,8 +17,7 @@ class AgentStakeResource extends JsonResource
     {
 
         return [
-            "id" => $this->platform_ref,
-//            "winningTags" => $this->winningTags->name,
+            "winningTags" => $this->winningTags->name,
             "stakePrice" => $this->stake_price,
             "ticketId" => $this->ticket_id,
             "number_picked" => $this->stake_number,

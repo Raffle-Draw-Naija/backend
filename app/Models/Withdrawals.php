@@ -32,7 +32,9 @@ class Withdrawals extends Model
         "trx_ref",
         "status",
         "bank_name",
-        "account_number"
+        "account_number",
+        "amount_at",
+        "amount_bt"
     ];
 
 

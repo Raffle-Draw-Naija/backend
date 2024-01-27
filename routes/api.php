@@ -5,14 +5,17 @@ use Illuminate\Support\Facades\Route;
 
 
 
-Route::post('/v1/refresh-token',  ['App\Http\Controllers\Auth\AuthController', 'refreshToken'])->middleware(['auth:sanctum',  'ability:'.\App\Enums\TokenAbility::ISSUE_ACCESS_TOKEN->value,]);
+Route::get('/v1/refresh-token',  ['App\Http\Controllers\Auth\AuthController', 'refreshToken'])->middleware(['auth:sanctum',  'ability:'.\App\Enums\TokenAbility::ISSUE_ACCESS_TOKEN->value,]);
 
 Route::get('generate-docs', function (){
     $output = [];
     \Artisan::call('l5-swagger:generate', $output);
-    \Artisan::call('migrate', $output);
+    \Artisan::call('storage:link', $output);
+//    \Artisan::call('migrate', $output);
     dd($output);
 });
+
+
 Route::get('/categories/list', ['App\Http\Controllers\CategoriesController', 'index']);
 Route::get('/generate-stake-platform-ref',function (){
     $platform = \App\Models\StakePlatform::all();
@@ -81,6 +84,7 @@ Route::group(['prefix' => 'v1/customer'], function () {
     Route::post('/verify-otp', ['App\Http\Controllers\Auth\AuthController', 'verifyOTP']);
 
     Route::group(['middleware' => ['auth:sanctum']], function () {
+        Route::get('/categories', ['App\Http\Controllers\CategoriesController', 'index']);
         Route::get('/send-notification', ['App\Http\Controllers\Auth\AuthController', 'sendNotification']);
         Route::get('/get-notifications', ['App\Http\Controllers\Auth\AuthController', 'getNotification']);
         Route::get('/get-raffles', ['App\Http\Controllers\CustomerStakeController', 'getRaffles']);
@@ -119,11 +123,12 @@ Route::group(['prefix' => 'v1/customer'], function () {
 
         Route::group(['prefix' => '/v1'], function () {
             Route::post('/login', ['App\Http\Controllers\Auth\AuthController', 'login']);
+            Route::get('/users', ['App\Http\Controllers\Auth\AuthController', 'getUsers']);
             Route::group(['middleware' => ['auth:sanctum']], function () {
                 Route::get('/get-flw-pub-key', ['App\Http\Controllers\Auth\AuthController', 'getFlwPubKey']);
                 Route::get('/get-flw-sec-key', ['App\Http\Controllers\Auth\AuthController', 'getFlwSecKey']);
                 Route::get('/get-flw-enc-key', ['App\Http\Controllers\Auth\AuthController', 'getFlwEncKey']);
-                Route::get('/get-stakes', ['App\Http\Controllers\TransactionsController', 'getStakes']);
+                Route::get('/get-all-stakes', ['App\Http\Controllers\TransactionsController', 'getStakes']);
                 Route::get('/get-wins', ['App\Http\Controllers\TransactionsController', 'getWins']);
                 Route::get('/logout', ['App\Http\Controllers\Auth\AuthController', 'logout']);
                 Route::get('/winning-tags', ['App\Http\Controllers\WinningTagsController', 'index']);
@@ -139,6 +144,7 @@ Route::group(['prefix' => 'v1/customer'], function () {
                 Route::get('/get-agents', ['App\Http\Controllers\AdminController', 'getAgents']);
             });
         Route::group(['prefix' => '/agent'], function () {
+            Route::patch('/create-pin', ['App\Http\Controllers\Auth\AuthController', 'createPin']);
             Route::post('/login', ['App\Http\Controllers\Auth\AuthController', 'login']);
             Route::post('/verify-otp', ['App\Http\Controllers\Auth\AuthController', 'verifyCode']);
             Route::post('/create', ['App\Http\Controllers\Auth\AuthController', 'registerAgent']);
@@ -147,11 +153,14 @@ Route::group(['prefix' => 'v1/customer'], function () {
 
             Route::group(['middleware' => ['auth:sanctum']], function () {
                 Route::get('get-raffles', ['App\Http\Controllers\AgentController', 'getRaffles']);
+                Route::post('get-agent-raffle-numbers', ['App\Http\Controllers\StakeNumbersController', 'getAgentRaffleNumbers']);
+                Route::get('get-dashboard-data', ['App\Http\Controllers\AgentController', 'getDashboardData']);
                 Route::get('/get-raffle-with-id/{i}', ['App\Http\Controllers\WinningTagsController', 'getRafflesWithId']);
                 Route::get('/winning-tags', ['App\Http\Controllers\WinningTagsController', 'agentGetTags']);
                 Route::get('/categories', ['App\Http\Controllers\CategoriesController', 'index']);
                 Route::post('/play-raffle', ['App\Http\Controllers\AgentController', 'store']);
                 Route::get('/all-stakes', ['App\Http\Controllers\AgentController', 'allStakes']);
+                Route::get('/today-stakes', ['App\Http\Controllers\AgentController', 'todayStakes']);
                 Route::get('/all-highest-number', ['App\Http\Controllers\AgentController', 'getHighestNumber']);
                 Route::get('/check-raffle/{id}', ['App\Http\Controllers\AgentController', 'getRaffleStatus']);
                 Route::get('/get-transactions', ['App\Http\Controllers\AgentController', 'getTransactions']);

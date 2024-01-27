@@ -7,6 +7,7 @@ use App\Http\Resources\RaffleDrawsResource;
 use App\Http\Resources\StakeAgentPlatform;
 use App\Http\Resources\StakeAgentPlatformResource;
 use App\Http\Resources\StakeResource;
+use App\Http\Resources\User;
 use App\Http\Resources\WinningTageResource;
 use App\Http\Resources\WinningTageResources;
 use App\Http\Resources\WinningTagsCollection;
@@ -56,7 +57,6 @@ class WinningTagsController extends Controller
 
         $winNoFromDB = StakePlatform::where("id", $stakePlatformId)->value("win_nos");
 
-
         if ($winNoFromDB == $winNo){
             $stake_platforms = StakePlatform::where("platform_ref", $stake_platform_id)->firstOrFail();
             $stake_platforms->count_winners += 1;
@@ -72,6 +72,13 @@ class WinningTagsController extends Controller
             "body" => "Raffle has been Drawn",
             "viewed" => "No"
         ]);
+
+        $customersThatPlayed = Stake::where("id", $stakePlatformId)->get();
+        foreach ($customersThatPlayed as $customer){
+            $device_token = User::where("id", $customer->user_id)->value("device_token");
+            $utils->sendNotifications($device_token, $customer->ticket_id);
+        }
+
         $data = RaffleDrawsResource::collection(StakePlatform::with(["categories", "winningTags"])->orderBy("created_at", "DESC")->get());
         return $utils->message("success", $data, 200);
 
@@ -98,12 +105,8 @@ class WinningTagsController extends Controller
      */
     public function getTag(Request $request, Utils $utils)
     {
-        $request->validate([
-            "category_id" => 'required'
-        ]);
-
         $id = Categories::where("cat_ref", $request->get("category_id"))->value("id");
-        $winningTags = WinningTags::where("category_id", $id)->get();
+        $winningTags = WinningTags::where("category_id", $id)->with(["categories"])->get();
         return $utils->message("Success", $winningTags, 200);
     }
     /**

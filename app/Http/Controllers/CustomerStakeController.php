@@ -61,7 +61,12 @@ class CustomerStakeController extends Controller
             "category_id" => "required",
             "winning_tag_id" => "required"
         ]);
-        $stakes = StakePlatform::where("is_close", 0)->where("category_id", $request->get("category_id"))->where("winning_tags_id", $request->get("winning_tag_id"))->with(["winningTags","categories"])->get();
+        $cat_id = Categories::where("cat_ref", $request->get("category_id"))->value("id");
+        $win_tag_ref = WinningTags::where("win_tag_ref", $request->get("winning_tag_id"))->value("id");
+        $stakes = StakePlatform::where("is_close", 0)
+                    ->where("category_id", $cat_id)
+                    ->where("winning_tags_id", $win_tag_ref)
+                    ->with(["winningTags","categories"])->get();
         return $utils->message("success", $stakes, 200);
     }
 
@@ -84,7 +89,7 @@ class CustomerStakeController extends Controller
     {
         $user_id = auth('sanctum')->user()->id;
 
-        if(!User::where("id", $request->get("user_id"))->exists())
+        if(!User::where("id",$user_id)->exists())
             return $utils->message("success", "User Not Found", 200);
 
         $stakes = DB::table("customers_stakes")
@@ -127,8 +132,8 @@ class CustomerStakeController extends Controller
     {
         $user_id = auth('sanctum')->user()->id;
 
-        if(!User::where("id", $request->get("user_id"))->exists())
-            return $utils->message("success", "User Not Found", 404);
+        if(!User::where("id", $user_id)->exists())
+            return $utils->message("error", "User Not Found", 404);
 
         $stakes = DB::table("customers_stakes")
                     ->join("winning_tags", "customers_stakes.winning_tags_id", "=", "winning_tags.id")
@@ -178,7 +183,7 @@ class CustomerStakeController extends Controller
         $totalStake = Stake::where("user_id", $user_id)->count();
         $totalWin = Stake::where("user_id", $user_id)->where("win", 1)->count();
         $totalFundAdded = CustomerTransactionHistory::where("user_id", $user_id)->where("transaction_type", "Credit")->sum("amount");
-        $totalFundWithdrawn = CustomerTransactionHistory::where("user_id", $user_id)->where("transaction_type", "Debit")->sum("stake_price");
+        $totalFundWithdrawn = CustomerTransactionHistory::where("user_id", $user_id)->where("transaction_type", "Debit")->sum("amount");
         $activeStake = Stake::where("user_id", $user_id)->where("active", 1)->limit(3);
         $allStake = Stake::where("user_id", $user_id)->limit(3);
 
@@ -246,7 +251,7 @@ class CustomerStakeController extends Controller
         $data =  explode("-",$request->get("start_date"));
         $stakePlatform = new StakePlatform();
 
-        return  DB::transaction(function () use ($request, $stakePlatform, $data) {
+        return  DB::transaction(function () use ($request, $stakePlatform, $data, $utils) {
             try {
                 $stakePlatform->year = $data[0];
                 $stakePlatform->month = $data[1];
@@ -383,17 +388,11 @@ class CustomerStakeController extends Controller
      *         description="Transaction Ref from flutterwave",
      *         @OA\Schema(type="string")
      *     ),
-     *     @OA\Parameter(
-     *         name="customer_id",
-     *         in="query",
-     *         description="Id of the customer",
-     *         @OA\Schema(type="string")
-     *     ),
      *     security={
      *         {"sanctum": {}}
      *     },
-     *     @OA\Response(response="200", description="Get Dashboard Items"),
-     *     @OA\Response(response="401", description="Invalid credentials"),
+     *     @OA\Response(response="200", description="Get Dashboard Items",  @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Invalid credentials",  @OA\JsonContent()),
      *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
      *
      * )
@@ -406,17 +405,16 @@ class CustomerStakeController extends Controller
         $stake_platform_id = $request->get("stake_platform_id");
         $request->validate([
             'category_id' => 'required|max:191',
-            'stake_price' => 'required|max:191',
-            'stake_number' => 'required|max:191',
-            'month' => 'required|max:191',
-            'year' => 'required|max:191',
-            'winning_tags_id' => 'required|integer',
+            'stake_price' => 'required|max:10',
+            'stake_number' => 'required|max:3',
+            'month' => 'required|max:2',
+            'year' => 'required|max:4',
+            'winning_tags_id' => 'required',
             'payment_method' => 'required'
         ]);
 
         $user_id = auth('sanctum')->user()->id;
-        $user_id = $request->get("user_id");
-        if(!StakePlatform::where("id",$stake_platform_id)->where("is_open", 1)->where("is_close", 0)->exists())
+        if(!StakePlatform::where("platform_ref",$stake_platform_id)->where("is_open", 1)->where("is_close", 0)->exists())
             return $utils->message("error", "Raffle is closed", 422);
 
 
@@ -431,19 +429,23 @@ class CustomerStakeController extends Controller
          if(!NewCustomer::where("user_id", $user_id)->exists())
              return $utils->message("error", "User Not Found", 404);
 
-         $customer_balance = NewCustomer::where("user_id", $user_id)->value("wallet");
-         $price = StakePlatform::where("id", $request->get("stake_platform_id"))->value("stake_price");
+        $ticket_id = Str::random(10);
+        if (Stake::where("ticket_id", $ticket_id)->exists())
+            return $utils->message("error", "Network Error. Please Try again", 500);
+
+
+        $customer_balance = NewCustomer::where("user_id", $user_id)->value("wallet");
+         $price = StakePlatform::where("platform_ref", $request->get("stake_platform_id"))->value("stake_price");
 
          if($request->get("payment_method") == "wallet"){
              if ($customer_balance >= $price){
                  $balance = $customer_balance - $price;
 
-                 return  DB::transaction(function () use ($request, $balance, $utils, $user_id){
+                   DB::transaction(function () use ($request, $balance, $utils, $user_id){
                      try {
                          $customer = NewCustomer::lockForUpdate()->where("user_id", $user_id)->firstOrFail();
                          $customer->wallet = $balance;
                          $customer->update();
-
                      } catch (\GuzzleHttp\Exception\ClientException $e) {
                          return $utils->message("error", $e->getMessage() , 400);
                      }
@@ -454,9 +456,6 @@ class CustomerStakeController extends Controller
              }
          }
 
-        $ticket_id = Str::random(10);
-        if (Stake::where("ticket_id", $ticket_id)->exists())
-            return $utils->message("error", "Network Error. Please Try again", 500);
         $customer_id = NewCustomer::where("user_id", $user_id)->value("id") ;;
 
         Log::info("########## Stake and Customer Info #########", [
@@ -479,12 +478,13 @@ class CustomerStakeController extends Controller
                 $stake->stake_number = $request->stake_number;
                 $stake->win = 0;
                 $stake->active = 1;
+                $stake->role = "customer";
                 $stake->month = $request->month;
                 $stake->year = $request->year;
-                $stake->winning_tags_id = $request->winning_tags_id;
-                $stake->category_id = $request->category_id;
+                $stake->winning_tags_id = WinningTags::where("win_tag_ref", $request->winning_tags_id)->value("id");
+                $stake->category_id = Categories::where("cat_ref", $request->category_id)->value("id");
                 $stake->payment_method = $request->get("payment_method");
-                $stake->stake_platform_id = $stake_platform_id;
+                $stake->stake_platform_id = StakePlatform::where("platform_ref",  $request->get("stake_platform_id"))->value("id");
                 $stake->save();
 
 

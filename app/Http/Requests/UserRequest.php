@@ -27,11 +27,11 @@ class UserRequest extends FormRequest
             "phone" => "required|unique:customers",
             "password" => [
                 'required',
-                'min:8',
-                'regex:/[a-z]/',      // must contain at least one lowercase letter
-                'regex:/[A-Z]/',      // must contain at least one uppercase letter
-                'regex:/[0-9]/',      // must contain at least one digit
-                'regex:/[@$!%*#?&.]/'
+//                'min:8',
+//                'regex:/[a-z]/',      // must contain at least one lowercase letter
+//                'regex:/[A-Z]/',      // must contain at least one uppercase letter
+//                'regex:/[0-9]/',      // must contain at least one digit
+//                'regex:/[@$!%*#?&.]/'
             ],
             "first_name" => "required",
             "last_name" => "required"

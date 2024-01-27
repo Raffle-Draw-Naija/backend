@@ -20,7 +20,6 @@ class Categories extends Model
 
 
     protected $hidden = [
-        "id"
     ];
     /**
      * Get the Stakes of a Customer

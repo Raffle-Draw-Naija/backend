@@ -13,9 +13,9 @@ class CategoriesController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/v1/admin/categories",
+     *     path="/api/v1/categories",
      *     summary="Get all Categories",
-     *     tags={"Admin"},
+     *     tags={"General"},
      *     security={
      *         {"sanctum": {}}
      *     },

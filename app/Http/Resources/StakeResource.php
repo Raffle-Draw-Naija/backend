@@ -16,7 +16,7 @@ class StakeResource extends JsonResource
             'month' => $this->month,
             'year' => $this->year,
             'win' => $this->win,
-            'winningTags' => $this->name,
+            'winningTags' => $this->winningTags->name,
             'stakePrice' => $this->stake_price,
             'ticketId' => $this->ticket_id,
             'date' => Carbon::parse($this->created_at)->format("d M, Y") ,

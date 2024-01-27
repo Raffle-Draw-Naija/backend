@@ -75,7 +75,7 @@ class Utils
         }
         return $output;
     }
-    public function validatePin($request, $pinFromDB, $utils): bool
+    public function validatePin($request, $pinFromDB)
     {
         if (!Hash::check($request->get("pin"), $pinFromDB))
             return false;
@@ -149,17 +149,17 @@ class Utils
     }
 
 
-    public function sendNotifications($request)
+    public function sendNotifications($device_token, $ticket_id)
     {
-        $firebaseToken = ["dQJlHc_dbfVBHz3zJDZrla:APA91bGQWALdrSeKvY6HRQ1Z1mfT1LpcwkwHsLfUMwxPwBtB7UL4ac7QP_HEJimG6msOLvJLCywBIG7dHY4CGgprutSd_qe_H"];
+        $firebaseToken = $device_token;
 
         $SERVER_API_KEY = env("FIREBASE_SERVER_KEY");
 
         $data = [
             "registration_ids" => $firebaseToken,
             "notification" => [
-                "title" => $request->get("title"),
-                "body" => $request->get("body"),
+                "title" => "Raffle9ja Alert",
+                "body" => "Your Ticket $ticket_id has been Drawn",
                 "content_available" => true,
                 "priority" => "high",
             ]

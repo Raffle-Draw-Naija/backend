@@ -19,6 +19,8 @@ class Agents extends Model
         "wallet",
         "user_id"
     ];
+
+
     protected $hidden = [
         "id"
     ];

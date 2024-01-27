@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\AgentDashboard;
 use App\Http\Resources\AgentPaymentResource;
 use App\Http\Resources\AgentStakeResource;
+use App\Http\Resources\AgentTransactionHistoryResource;
 use App\Http\Resources\CreatePaymentResource;
 use App\Http\Resources\StakeAgentPlatformResource;
 use App\Http\Resources\StakeResource;
@@ -34,6 +36,24 @@ use Illuminate\Support\Str;
 class AgentController extends Controller
 {
 
+    public function getDashboardData(Request $request, Utils $utils)
+    {
+        $user_id = auth('sanctum')->user()->id;
+
+        $todayStakes = AgentStakes::whereDate("created_at", Carbon::today())->where("user_id", $user_id)->sum("stake_price");
+        $noOfTodayStakes = AgentStakes::whereDate("created_at", Carbon::today())->where("user_id", $user_id)->count("stake_price");
+        $stakes = Stake::sum("stake_price");
+        $transactions = AgentTransactionHistory::where("user_id", $user_id)->sum("amount");
+        $data = [
+          "todayStake" => $todayStakes,
+          "stakes" => $stakes,
+          "noOfTodayStakes" => $noOfTodayStakes,
+          "transactions" => $transactions
+        ];
+        return  $utils->message("success", $data, 200);
+
+    }
+
     /**
      * @OA\Get(
      *     path="/api/v1/agent/get-transactions",
@@ -44,10 +64,8 @@ class AgentController extends Controller
      */
     public function getTransactions(Request $request, Utils $utils)
     {
-
         $user_id = auth('sanctum')->user()->id;
-        $agent_id = Agent::where("user_id", $user_id)->value("id");
-      return  $utils->message("success", CustomerTransactionHistory::where("user_id", $agent_id)->get(["transaction_type", 'amount', 'description', 'created_at']), 200);
+      return  $utils->message("success", AgentTransactionHistoryResource::collection(AgentTransactionHistory::where("user_id", $user_id)->get()), 200);
 
     }
     /**
@@ -93,15 +111,36 @@ class AgentController extends Controller
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
-     *     @OA\Response(response="200", description="Get category id", @OA\JsonContent()),
+     *     @OA\Response(response="200", description="Get Dashboard Items", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Invalid credentials", @OA\JsonContent()),
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *
      * )
      */
     public function allStakes(Request $request, Utils $utils)
     {
         $user_id = auth('sanctum')->user()->id;
         $agent_id = Agent::where("user_id", $user_id)->value("id");
-        AgentStakes::where("agent_id", $agent_id)->with("winningTags")->orderBy("created_at", "DESC")->get();
-        return  $utils->message("success", AgentStakeResource::collection(AgentStakes::where("agent_id", $agent_id)->with("winningTags")->orderBy("created_at", "DESC")->get()), 200);
+        $agentStakes =  AgentStakes::where("agent_id", $agent_id)->with("winningTags")->orderBy("created_at", "DESC")->get();
+        return  $utils->message("success", AgentStakeResource::collection($agentStakes), 200);
+    }
+    /**
+     * @OA\Get(
+     *     path="/api/v1/agent/today-stakes",
+     *     summary="Get Today Stake",
+     *     tags={"Agent"},
+     *     @OA\Response(response="200", description="Get Dashboard Items", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Invalid credentials", @OA\JsonContent()),
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *
+     * )
+     */
+    public function todayStakes(Request $request, Utils $utils)
+    {
+        $user_id = auth('sanctum')->user()->id;
+        $agent_id = Agent::where("user_id", $user_id)->value("id");
+        $agentStakes =  AgentStakes::where("agent_id", $agent_id)->with("winningTags")->whereDate("created_at", Carbon::today())->orderBy("created_at", "DESC")->get();
+        return  $utils->message("success", AgentStakeResource::collection($agentStakes), 200);
     }
     public function store(Request $request, Utils $utils)
     {
@@ -148,7 +187,7 @@ class AgentController extends Controller
         $price = StakePlatform::where("platform_ref", $stake_platform_id)->value("stake_price");
 
         if ($agent_balance >= $price){
-            $balance = $agent_balance - $price;
+            $balance = bcsub($agent_balance, $price, 9);
             $customer = Agent::where("user_id", $user_id)->firstOrFail();
             $customer->wallet = $balance;
             $customer->update();
@@ -162,8 +201,19 @@ class AgentController extends Controller
 
         return  DB::transaction(function () use ($request, $stake_number, $utils, $ticket_id, $user_id, $price, $stake_platform_id) {
             try {
+
                 $platform_id = StakePlatform::where("platform_ref", $stake_platform_id)->value("id");
-                $agent_id = Agent::where("user_id", $user_id)->value("id");;
+                $agent_id = Agent::where("user_id", $user_id)->value("id");
+
+                Log::info("############# Agent Stake ###############", [
+                    "user_id" => $user_id,
+                    "ticket_id" => $ticket_id,
+                    "price" => $price,
+                    "stake_platform_id" => $stake_platform_id,
+                    "stake_number" => $stake_number,
+                    "agent_id" => $agent_id
+                ]);
+
                 $stake = new AgentStakes();
                 $stake->user_id = $user_id;
                 $stake->agent_id = $agent_id;
@@ -197,7 +247,7 @@ class AgentController extends Controller
                     "ticket_id" => $stake->ticket_id,
                     "created_at" => Carbon::parse($stake->created_at)->format("d M, Y"),
                     "address" => Agent::where("user_id", $user_id)->value("address"),
-                    "wallet" => Agent::where("user_id", $user_id)->value("wallet")
+                    "wallet" => number_format(Agent::where("user_id", $user_id)->value("wallet"), 2)
                 ];
                 return $utils->message("success", $data, 200);
 
@@ -353,8 +403,8 @@ class AgentController extends Controller
             "pin" => "required|int"
         ]);
          $pinFromDB = auth('sanctum')->user()->pin;
-         if (!$utils->validatePin($request, $pinFromDB, $utils))
-            return   $utils->message("error", "Invalid Pin", 401);
+         if (!$utils->validatePin($request, $pinFromDB))
+            return   $utils->message("error", "Invalid Pin", 422);
 
       return  $utils->message("success", "Pin Validation Successful", 200);
 
@@ -368,7 +418,8 @@ class AgentController extends Controller
             ->join('winning_tags', 'winning_tags.id', '=', 'customers_stakes.winning_tags_id')
             ->join('stake_platforms', 'stake_platforms.id', '=', 'customers_stakes.stake_platform_id')
             ->where('customers_stakes.user_id', '=', $user_id)
-            ->select("stake_platforms.is_close","winning_tags.name as winningTags", "customers_stakes.id as key", "customers_stakes.stake_price as stakePrice", "customers_stakes.created_at as date", "customers_stakes.stake_number as  numberPicked")
+            ->select("stake_platforms.created_at", "stake_platforms.is_close","winning_tags.name as winningTags", "customers_stakes.id as key", "customers_stakes.stake_price as stakePrice", "customers_stakes.created_at as date", "customers_stakes.stake_number as  numberPicked")
+            ->orderBy("stake_platforms.created_at", "DESC")
             ->get();
 
         $data = [

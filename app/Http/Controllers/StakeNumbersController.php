@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\StakeNumberResource;
 use App\Models\Categories;
 use App\Models\Stake;
 use App\Models\StakeNumbers;
@@ -57,6 +58,29 @@ class StakeNumbersController extends Controller
             $stake_numbers = StakeNumbers::where("stake_nos", "!=", $win_no)->get();
         else
             $stake_numbers = StakeNumbers::all();
+
+        return $utils->message("success", $stake_numbers, 200);
+    }
+
+    public function getAgentRaffleNumbers(Request $request, Utils $utils)
+    {
+        $request->validate([
+            "stake_platform_ref" => 'required',
+        ]);
+        $category_id = StakePlatform::where("platform_ref", $request->get("stake_platform_ref"))->value("category_id");
+        $winning_tags_id = StakePlatform::where("platform_ref", $request->get("stake_platform_ref"))->value("winning_tags_id");
+
+        $category_id = Categories::where("id", $category_id)->value("id") ;
+        $winning_tag_id = WinningTags::where("win_tag_ref", $winning_tags_id)->value("id");
+
+        $max_winner_count = StakePlatform::where("platform_ref", $request->get("stake_platform_ref"))->value("max_winner_count");
+        $win_no = StakePlatform::where("platform_ref", $request->get("stake_platform_ref"))->value("win_nos");
+        $count_winners = StakePlatform::where("platform_ref", $request->get("stake_platform_ref"))->value("count_winners");
+
+        if ($count_winners >= $max_winner_count)
+            $stake_numbers = StakeNumberResource::collection(StakeNumbers::where("stake_nos", "!=", $win_no)->get());
+        else
+            $stake_numbers = StakeNumberResource::collection(StakeNumbers::all());
 
         return $utils->message("success", $stake_numbers, 200);
     }

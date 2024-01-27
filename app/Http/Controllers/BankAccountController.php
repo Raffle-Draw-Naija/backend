@@ -29,20 +29,22 @@ class BankAccountController extends Controller
      *         {"sanctum": {}}
      *     },
      *     @OA\Response(response="200", description="Get all Bank Accounts"),
-     *     @OA\Response(response="401", description="Invalid credentials")
+     *     @OA\Response(response="401", description="Invalid credentials"),
+     *     @OA\Response(response="404", description="Page Not Found")
      * )
      */
     public function getAccount(Request $request, Utils $utils)
     {
-        $request->validate([
-            "user_id" => "required"
-        ]);
         $user_id =  auth('sanctum')->user()->id;
         if (BankAccount::where("user_id",$user_id)->exists())
             return  $utils->message("error", "Account Not Found", 404);
 
         $bankAccount = BankAccount::where("user_id", $user_id)->firstOrFail();
-        return  $utils->message("success", $bankAccount, 200);
+        $data = [
+            "account" => $bankAccount,
+            "accountCreated" => 1
+        ];
+        return  $utils->message("success", $data, 200);
 
     }
     /**
@@ -136,9 +138,9 @@ class BankAccountController extends Controller
 
 
     /**
-     * @OA\Get (
-     *     path="/api/v1/get-stakes",
-     *      tags={"General"},
+     * @OA\Post (
+     *     path="/api/v1/customer/account/create",
+     *      tags={"Mobile"},
      *     @OA\Parameter(
      *         name="account_name",
      *         in="query",
@@ -160,12 +162,20 @@ class BankAccountController extends Controller
      *         required=true,
      *         @OA\Schema(type="string")
      *      ),
+     *     @OA\Parameter(
+     *         name="amount",
+     *         in="query",
+     *         description="amount",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *      ),
      *     security={
      *         {"sanctum": {}}
      *     },
      *     @OA\Response(response="200", description="Getting Stake successful", @OA\JsonContent()),
      *     @OA\Response(response="400", description="Bad Request", @OA\JsonContent()),
-     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="validation Error", @OA\JsonContent())
      *
      * )
      */
@@ -173,7 +183,7 @@ class BankAccountController extends Controller
     {
         $request->validate([
             "account_name" => "required|string",
-            "account_number" => "required|integer",
+            "account_number" => "required|digits:10",
             "bank_code" => "required|string"
         ]);
         $user_id =  auth('sanctum')->user()->id;
@@ -182,7 +192,10 @@ class BankAccountController extends Controller
 
         return  DB::transaction(function () use ($request, $utils, $user_id){
             try {
-                $bank = Banks::where("code", $request->get("bank"))->value("name");
+                if (!Banks::where("code", $request->get("bank_code"))->exists())
+                    return $utils->message("error","Bank Not Found" , 422);
+
+                $bank = Banks::where("code", $request->get("bank_code"))->value("name");
                  $bankAccount = new BankAccount();
                  $bankAccount->user_id = $user_id;
                  $bankAccount->account_number = $request->get("account_number");
@@ -190,9 +203,13 @@ class BankAccountController extends Controller
                  $bankAccount->account_name = $request->get("account_name");
                  $bankAccount->bank = $bank;
                  $bankAccount->save();
+
+                 $user = User::findOrFail($user_id);
+                 $user->account_created = 1;
+                 $user->update();
                  return  $utils->message("success", "Account Details Uploaded Successfully.", 200);
             } catch (\GuzzleHttp\Exception\ClientException $e) {
-                return $utils->message("error", $e->getMessage() , 400);
+                return $utils->message("error", $e->getMessage() , 422);
             }
         });
 

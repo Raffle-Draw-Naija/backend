@@ -162,34 +162,34 @@ class AdminController extends Controller
     }
     public function dashboard(Request $request, Utils $utils)
     {
-        $recentStake = StakeResource::collection(Stake::limit(3)->orderBy("created_at", "DESC")->get());
+        $recentStake = StakeResource::collection(Stake::limit(3)->with(["winningTags"])->orderBy("created_at", "DESC")->get());
         $recentCustomer = CustomerGraphResource::collection(NewCustomer::limit(5)->get());
 
-//        $customers = NewCustomer::select(
-//            DB::raw("(count(id)) as count"),
-//            DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
-//            DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
-//        )->orderBy('created_at')
-//            ->groupBy(["months", "monthKey"])
-//            ->get();
+        $customers = NewCustomer::select(
+            DB::raw("(count(id)) as count"),
+            DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
+            DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
+        )->orderBy('created_at')
+            ->groupBy(["months", "monthKey"])
+            ->get();
 
-//        $newCustomers = [];
-//        foreach($customers as $customer){
-//            array_push($newCustomers, ['count' => $customer->count, "year" => Carbon::parse($customer->months)->format("M, Y")]);
-//        }
+        $newCustomers = [];
+        foreach($customers as $customer){
+            array_push($newCustomers, ['count' => $customer->count, "year" => Carbon::parse($customer->months)->format("M, Y")]);
+        }
 
-//        $stakesData = Stake::select(
-//            DB::raw("(sum(stake_price)) as amount"),
-//            DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
-//            DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
-//        )->orderBy('created_at')
-//            ->groupBy(["months", "monthKey"])
-//            ->get();
-//
-//        $newStakes = [];
-//        foreach($stakesData as $stake){
-//            array_push($newStakes, ['amount' => $stake->amount, "year" => Carbon::parse($stake->months)->format("M, Y")]);
-//        }
+        $stakesData = Stake::select(
+            DB::raw("(sum(stake_price)) as amount"),
+            DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
+            DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
+        )->orderBy('created_at')
+            ->groupBy(["months", "monthKey"])
+            ->get();
+
+        $newStakes = [];
+        foreach($stakesData as $stake){
+            array_push($newStakes, ['amount' => $stake->amount, "year" => Carbon::parse($stake->months)->format("M, Y")]);
+        }
         $stake = Stake::count();
         $agentStake = AgentStakes::count();
         $agentTrans = AgentTransactionHistory::count();
@@ -198,8 +198,9 @@ class AdminController extends Controller
             'stakesCount' => $stake,
             'agentStake' => $agentStake,
             'agentTrans' => $agentTrans,
-//            'stakesGraphData' => $newStakes,
-//              'customerGraphData' => $newCustomers,
+            'stakesGraphData' => $newStakes,
+            'customerGraphData' => $newCustomers,
+            "recentStakes" => $recentStake
         ];
         return $utils->message("success", $data, 200);
     }

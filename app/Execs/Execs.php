@@ -31,7 +31,7 @@ class Execs
                     $user->role = $role;
                     $user->email = $userRequest->get("email");
                     $user->verify_code = $verify_code;
-                    $user->device_id = $userRequest->get("device_id");
+                    $user->device_token = $userRequest->get("device_id");
                     $user->save();
                     $mailData = [
                         'title' => 'Verification Code',

@@ -93,15 +93,8 @@ class TransactionsController extends Controller
 
     /**
      * @OA\Get (
-     *     path="/api/v1/get-stakes",
-     *      tags={"General"},
-     *     @OA\Parameter(
-     *         name="user_id",
-     *         in="query",
-     *         description="user_id",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *      ),
+     *     path="/api/v1/get-all-stakes",
+     *     tags={"General"},
      *     security={
      *         {"sanctum": {}}
      *     },
@@ -198,9 +191,6 @@ class TransactionsController extends Controller
      */
     public function getTransactionCreditHistory(Request $request, Utils $utils): JsonResponse
     {
-        $request->validate([
-            "user_id" => "required|integer"
-        ]);
 
         $user_id = auth('sanctum')->user()->id;
         $transaction_history = CustomerTransactionHistory::where("user_id", $user_id)->where("transaction_type", "Credit")->get();
@@ -267,20 +257,6 @@ class TransactionsController extends Controller
      *         required=true,
      *         @OA\Schema(type="string")
      *     ),
-     *     @OA\Parameter(
-     *         name="bank_code",
-     *         in="query",
-     *         description="Bank Code",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="account_number",
-     *         in="query",
-     *         description="account number",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
      *     security={
      *         {"sanctum": {}}
      *     },
@@ -293,22 +269,18 @@ class TransactionsController extends Controller
     public function withdrawal(Request $request, Utils $utils)
     {
         $request->validate([
-            "amount" => "required|int",
-            "user_id" => "required|int"
+            "amount" => "required|int|gte:100",
         ]);
         $user_id =  auth('sanctum')->user()->id;
         $amount = $request->get("amount");
         $total = 0;
         $balance = NewCustomer::where("user_id", $user_id)->value("wallet");
-        if ($amount >= $balance)
+        if ($amount > $balance)
             return  $utils->message("error", "Insufficient Fund.", 400);
         if ($amount > 500000)
             return  $utils->message("error", "Your Daily limit is 500,000", 400);
 
             try {
-                $balance = NewCustomer::where("user_id", $user_id)->value("wallet");
-                $total = $balance - $amount;
-
                 return  DB::transaction(function () use ($request, $total, $utils, $amount, $user_id){
                     try {
                         $client = new \GuzzleHttp\Client();
@@ -381,19 +353,22 @@ class TransactionsController extends Controller
                                 $transaction->is_approved = $paymentResponses->data->is_approved;
                                 $transaction->bank_name = $paymentResponses->data->bank_name;
                                 $transaction->status = "Completed";
+                                $transaction->amount_bt = NewCustomer::where("user_id", $user_id)->value("wallet");
+                                $transaction->amount_at = NewCustomer::where("user_id", $user_id)->value("wallet") - $amount;
                                 $transaction->update();
 
                                 $customerTransactionHistory = new CustomerTransactionHistory();
-                                $customerTransactionHistory->amount_bt = NewCustomer::where("user_id", $user_id)->value("wallet");
-                                $customerTransactionHistory->amount_at = NewCustomer::where("user_id", $user_id)->value("wallet") + $amount;
                                 $customerTransactionHistory->amount = $amount;
                                 $customerTransactionHistory->user_id = $user_id;
-                                $customerTransactionHistory->role = "Agent";
+                                $customerTransactionHistory->role = "Customer";
                                 $customerTransactionHistory->transaction_type = "Debit";
                                 $customerTransactionHistory->description = "TRF FROM RAFFLE9JA to " . $paymentResponses->data->full_name;
                                 $customerTransactionHistory->customer_id = NewCustomer::where("user_id", $user_id)->value("id");
                                 $customerTransactionHistory->transaction_ref = $paymentResponses->data->reference;
                                 $customerTransactionHistory->save();
+
+                                $balance = NewCustomer::where("user_id", $user_id)->value("wallet");
+                                $total = $balance - $amount;
 
                                 NewCustomer::lockForUpdate()->where("user_id", $user_id)->update(["wallet" => $total]);
                                 $data = [
@@ -445,7 +420,6 @@ class TransactionsController extends Controller
     public function addFund(Request $request, Utils $utils)
     {
         $request->validate([
-            "user_id" => "required",
             "amount" => "required",
             "trx_ref" => "required"
         ]);
@@ -458,7 +432,6 @@ class TransactionsController extends Controller
 
 
         $wallet = NewCustomer::where("user_id",  $user_id)->value("wallet");
-        $total = $wallet + $request->get("amount");
 
         if(!NewCustomer::where("user_id", $user_id)->exists())
             return  $utils->message("success", "User Not Found", 404);
@@ -476,7 +449,7 @@ class TransactionsController extends Controller
 
             try {
                 $customer = NewCustomer::lockForUpdate()->where("user_id", $user_id)->firstOrFail();
-                $customer->wallet += $amount;
+                $customer->wallet = bcadd($customer->wallet, $amount, 9);
                 $customer->update();
 
                 $transactionHistory = new CustomerTransactionHistory;

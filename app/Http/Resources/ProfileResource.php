@@ -20,6 +20,7 @@ class ProfileResource extends JsonResource
             "first_name" => $this->profile->first_name,
             "last_name" => $this->profile->last_name,
             "username" => $this->username,
+            "account_created" => $this->account_created,
             "wallet" => $this->profile->wallet
         ];
     }

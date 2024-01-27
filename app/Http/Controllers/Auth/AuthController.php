@@ -9,6 +9,7 @@ use App\Http\Resources\UserResource;
 use App\Mail\PasswordCodeEmail;
 use App\Mail\VerifyCodeMail;
 use App\Models\Agent;
+use App\Models\Agents;
 use App\Models\Keys;
 use App\Models\NewCustomer;
 use App\Models\Notifications;
@@ -35,8 +36,12 @@ use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 class AuthController extends Controller
 {
 
+    public function getUsers()
+    {
+        return User::where("id", 1)->get(['pin']);
+    }
     /**
-     * @OA\Post    (
+     * @OA\Get     (
      *     path="/api/v1/refresh-token",
      *      tags={"General"},
      *     security={
@@ -51,8 +56,7 @@ class AuthController extends Controller
      */
     public function refreshToken(Request $request)
     {
-        return 1;
-        $accessToken = $request->user()->createToken('access_token', [\App\Enums\TokenAbility::ACCESS_API->value], \Carbon\Carbon::now()->addSeconds(15));
+        $accessToken = $request->user()->createToken('access_token', [\App\Enums\TokenAbility::ACCESS_API->value], \Carbon\Carbon::now()->addMinutes(15));
 
         return ['token' => $accessToken->plainTextToken];
 
@@ -106,12 +110,12 @@ class AuthController extends Controller
         ]);
         $user_id = auth('sanctum')->user()->id;
 
-        $customer = NewCustomer::findOrFail($user_id);
-        $customer->first_name = $request->get("first_name");
-        $customer->last_name = $request->get("last_name");
-        $customer->email = $request->get("email");
-        $customer->phone = $request->get("phone");
-        $customer->update();
+        $customerUpdate = NewCustomer::where("user_id", $user_id)->firstOrFail();
+        $customerUpdate->first_name = $request->get("first_name");
+        $customerUpdate->last_name = $request->get("last_name");
+        $customerUpdate->email = $request->get("email");
+        $customerUpdate->phone = $request->get("phone");
+        $customerUpdate->update();
 
         return $utils->message("success", "Profile Updated Successfully.", 200);
     }
@@ -205,11 +209,12 @@ class AuthController extends Controller
         ]);
         $user_id = auth('sanctum')->user()->id;
 
-        if (!User::where("id", $request->get("user_id"))->exists())
+        if (!User::where("id", $user_id)->exists())
             return $utils->message("error", "User Not Found", 404);
 
         $pinFromDB = User::where("id", $user_id)->value("pin");
-        if (!$utils->validatePin($request, $pinFromDB, $utils))
+
+        if (!Hash::check($request->get("pin"), $pinFromDB))
             return   $utils->message("error", "Invalid Pin", 422);
 
         return $utils->message("success", "Pin Validated Successfully.", 200);
@@ -239,7 +244,6 @@ class AuthController extends Controller
     public function createPin(Request $request, Utils $utils): JsonResponse
     {
         $request->validate([
-           "user_id" => "required|int",
            "pin" => "required|int|digits:6"
         ]);
         $user_id = auth('sanctum')->user()->id;
@@ -584,7 +588,7 @@ class AuthController extends Controller
             'code' => "required|integer",
         ]);
         if(User::where('email',$request->get("email"))->value("password_reset") !== $request->get("code"))
-            return $utils->message("error", "Code is incorrect", 401);
+            return $utils->message("error", "Code is incorrect", 422);
 
         return $utils->message("success", "Code Verified Successfully.", 200);
 
@@ -628,25 +632,26 @@ class AuthController extends Controller
     {
 
         if (!auth()->attempt(request()->only(['username', 'password']))) {
-            return $utils->message( "error", "Invalid Username/Password", 401);
+            return $utils->message( "error", "Invalid Username/Password", 422);
         }
 
         if (Auth::user()->role=="Agent")
-            $user = Agent::where("user_id", Auth::user()->id)->firstOrFail();
+            $user = Agents::where("user_id", Auth::user()->id)->firstOrFail();
         else
             $user = NewCustomer::where("user_id", Auth::user()->id)->firstOrFail();
 
         $loginRequest->get("device_id");
         $authUser = Auth::user();
 
-        $token = $authUser->createToken('access_token', [TokenAbility::ACCESS_API->value], \Carbon\Carbon::now()->addDays(15));
+        $token = $authUser->createToken('access_token', [TokenAbility::ACCESS_API->value], \Carbon\Carbon::now()->addMinutes(15));
         $rtoken = $authUser->createToken('refresh_token', [TokenAbility::ISSUE_ACCESS_TOKEN->value],\Carbon\Carbon::now()->addDays(7));
         $success['token']  = $token->plainTextToken ;
         $success['refreshToken']  = $rtoken->plainTextToken;
         $success['first_name'] =   $user->first_name;
         $success['last_name'] =  $user->last_name;
         $success['username'] =  $authUser->username;
-        $success['wallet'] = Agent::where("user_id", $authUser->id)->value("wallet");
+        $success['wallet'] = Agents::where("user_id", $authUser->id)->value("wallet");
+        auth()->user()->update(['device_token'=> $loginRequest->device_id]);
         return $utils->message("success", $success, 200);
     }
     public function logout(Request $request, User $user, Utils $utils)
