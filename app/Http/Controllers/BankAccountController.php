@@ -29,14 +29,15 @@ class BankAccountController extends Controller
      *         {"sanctum": {}}
      *     },
      *     @OA\Response(response="200", description="Get all Bank Accounts"),
-     *     @OA\Response(response="401", description="Invalid credentials"),
-     *     @OA\Response(response="404", description="Page Not Found")
+     *     @OA\Response(response="400", description="Invalid credentials"),
+     *     @OA\Response(response="404", description="Page Not Found"),
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      * )
      */
     public function getAccount(Request $request, Utils $utils)
     {
         $user_id =  auth('sanctum')->user()->id;
-        if (BankAccount::where("user_id",$user_id)->exists())
+        if (!BankAccount::where("user_id",$user_id)->exists())
             return  $utils->message("error", "Account Not Found", 404);
 
         $bankAccount = BankAccount::where("user_id", $user_id)->firstOrFail();
@@ -114,7 +115,7 @@ class BankAccountController extends Controller
      *         {"sanctum": {}}
      *     },
      *     @OA\Response(response="200", description="Get all Bank Accounts"),
-     *     @OA\Response(response="401", description="Invalid credentials")
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      * )
      */
     public function getProfile(Request $request, Utils $utils): JsonResponse
@@ -175,7 +176,7 @@ class BankAccountController extends Controller
      *     @OA\Response(response="200", description="Getting Stake successful", @OA\JsonContent()),
      *     @OA\Response(response="400", description="Bad Request", @OA\JsonContent()),
      *     @OA\Response(response="422", description="validation Error", @OA\JsonContent()),
-     *     @OA\Response(response="401", description="validation Error", @OA\JsonContent())
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      *
      * )
      */

@@ -38,7 +38,8 @@ class TransactionsController extends Controller
      *     },
      *     @OA\Response(response="200", description="Balance is greater than amount", @OA\JsonContent()),
      *     @OA\Response(response="400", description="Bad Request", @OA\JsonContent()),
-     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      *
      * )
      */
@@ -74,7 +75,8 @@ class TransactionsController extends Controller
      *     },
      *     @OA\Response(response="200", description="Getting Stake successful", @OA\JsonContent()),
      *     @OA\Response(response="400", description="Bad Request", @OA\JsonContent()),
-     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      *
      * )
      */
@@ -100,7 +102,8 @@ class TransactionsController extends Controller
      *     },
      *     @OA\Response(response="200", description="Getting Stake successful", @OA\JsonContent()),
      *     @OA\Response(response="400", description="Bad Request", @OA\JsonContent()),
-     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      *
      * )
      */
@@ -166,7 +169,7 @@ class TransactionsController extends Controller
      *         {"sanctum": {}}
      *     },
      *     @OA\Response(response="200", description="List debit transactions"),
-     *     @OA\Response(response="401", description="Invalid credentials")
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      * )
      */
     public function getTransactionDebitHistory(Request $request, Utils $utils): JsonResponse
@@ -184,8 +187,8 @@ class TransactionsController extends Controller
      *         {"sanctum": {}}
      *     },
      *     @OA\Response(response="200", description="Registration successful", @OA\JsonContent()),
-     *     @OA\Response(response="401", description="Invalid credentials", @OA\JsonContent()),
-     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      *
      * )
      */
@@ -210,7 +213,7 @@ class TransactionsController extends Controller
      *         {"sanctum": {}}
      *     },
      *     @OA\Response(response="200", description="List transactions"),
-     *     @OA\Response(response="401", description="Invalid credentials")
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      * )
      */
     public function getTransactionHistory(Request $request, Utils $utils): JsonResponse
@@ -232,7 +235,8 @@ class TransactionsController extends Controller
      *     @OA\Response(response="200", description="Getting withdrawal Sucessful", @OA\JsonContent()),
      *     @OA\Response(response="400", description="Bad Request", @OA\JsonContent()),
      *     @OA\Response(response="404", description="User Not Found", @OA\JsonContent()),
-     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      * )
      */
     public function getWithdrawal(Request $request, Utils $utils): JsonResponse
@@ -263,7 +267,8 @@ class TransactionsController extends Controller
      *     @OA\Response(response="200", description="Withdrawal Successful", @OA\JsonContent()),
      *     @OA\Response(response="400", description="Bad Request", @OA\JsonContent()),
      *     @OA\Response(response="404", description="User Not Found", @OA\JsonContent()),
-     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      * )
      */
     public function withdrawal(Request $request, Utils $utils)
@@ -414,7 +419,7 @@ class TransactionsController extends Controller
      *         {"sanctum": {}}
      *     },
      *     @OA\Response(response="200", description="Add Fund"),
-     *     @OA\Response(response="401", description="Invalid credentials")
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      * )
      */
     public function addFund(Request $request, Utils $utils)

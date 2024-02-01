@@ -96,7 +96,8 @@ class AuthController extends Controller
      *     @OA\Response(response="200", description="Pin Validate successful", @OA\JsonContent()),
      *     @OA\Response(response="400", description="Bad Request", @OA\JsonContent()),
      *     @OA\Response(response="404", description="User Not Found", @OA\JsonContent()),
-     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      *
      * )
      */
@@ -130,7 +131,8 @@ class AuthController extends Controller
      *     @OA\Response(response="200", description="Pin Validate successful", @OA\JsonContent()),
      *     @OA\Response(response="400", description="Bad Request", @OA\JsonContent()),
      *     @OA\Response(response="404", description="User Not Found", @OA\JsonContent()),
-     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      *
      * )
      */
@@ -151,7 +153,8 @@ class AuthController extends Controller
      *     @OA\Response(response="200", description="Pin Validate successful", @OA\JsonContent()),
      *     @OA\Response(response="400", description="Bad Request", @OA\JsonContent()),
      *     @OA\Response(response="404", description="User Not Found", @OA\JsonContent()),
-     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      *
      * )
      */
@@ -171,7 +174,8 @@ class AuthController extends Controller
      *     @OA\Response(response="200", description="Pin Validate successful", @OA\JsonContent()),
      *     @OA\Response(response="400", description="Bad Request", @OA\JsonContent()),
      *     @OA\Response(response="404", description="User Not Found", @OA\JsonContent()),
-     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      *
      * )
      */
@@ -198,7 +202,8 @@ class AuthController extends Controller
      *     @OA\Response(response="200", description="Pin Validate successful", @OA\JsonContent()),
      *     @OA\Response(response="400", description="Bad Request", @OA\JsonContent()),
      *     @OA\Response(response="404", description="User Not Found", @OA\JsonContent()),
-     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      *
      * )
      */
@@ -237,7 +242,8 @@ class AuthController extends Controller
      *     @OA\Response(response="200", description="Pin Created successful", @OA\JsonContent()),
      *     @OA\Response(response="400", description="Bad Request", @OA\JsonContent()),
      *     @OA\Response(response="404", description="User Not Found", @OA\JsonContent()),
-     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      *
      * )
      */
@@ -323,8 +329,8 @@ class AuthController extends Controller
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Response(response="200", description="Registration successful", @OA\JsonContent()),
-     *     @OA\Response(response="401", description="Invalid credentials", @OA\JsonContent()),
-     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      *
      * )
      *
@@ -486,7 +492,7 @@ class AuthController extends Controller
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Response(response="200", description="Registration successful"),
-     *     @OA\Response(response="401", description="Invalid credentials")
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      * )
      */
     public function forgotPassword(Request $request, Utils $utils): JsonResponse
@@ -536,7 +542,7 @@ class AuthController extends Controller
      *         {"sanctum": {}}
      *     },
      *     @OA\Response(response="200", description="Registration successful"),
-     *     @OA\Response(response="401", description="Invalid credentials")
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      * )
      */
     public function updatePassword(Request $request, Utils $utils)
@@ -650,6 +656,7 @@ class AuthController extends Controller
         $success['first_name'] =   $user->first_name;
         $success['last_name'] =  $user->last_name;
         $success['username'] =  $authUser->username;
+        $success['email'] =  $authUser->email;
         $success['wallet'] = Agents::where("user_id", $authUser->id)->value("wallet");
         auth()->user()->update(['device_token'=> $loginRequest->device_id]);
         return $utils->message("success", $success, 200);

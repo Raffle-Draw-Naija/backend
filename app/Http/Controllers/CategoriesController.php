@@ -20,7 +20,7 @@ class CategoriesController extends Controller
      *         {"sanctum": {}}
      *     },
      *     @OA\Response(response="200", description="Get all Categories"),
-     *     @OA\Response(response="401", description="Invalid credentials")
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      * )
      */
     public function index()

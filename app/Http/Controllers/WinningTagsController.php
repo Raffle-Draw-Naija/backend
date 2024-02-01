@@ -33,6 +33,7 @@ class WinningTagsController extends Controller
      *         {"sanctum": {}}
      *     },
      *     @OA\Response(response="200", description="Get Machines"),
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      * )
      */
     public function getMachines(Utils $utils)
@@ -99,8 +100,7 @@ class WinningTagsController extends Controller
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Response(response="200", description="Get category id", @OA\JsonContent()),
-     *     @OA\Response(response="401", description="Invalid credentials")
-
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      * )
      */
     public function getTag(Request $request, Utils $utils)
@@ -190,6 +190,7 @@ class WinningTagsController extends Controller
      *         {"sanctum": {}}
      *     },
      *     @OA\Response(response="200", description="Get Tools"),
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      * )
      */
     public function getTools(Utils $utils)
@@ -209,7 +210,7 @@ class WinningTagsController extends Controller
      *         {"sanctum": {}}
      *     },
      *     @OA\Response(response="200", description="Get all winning tags"),
-     *     @OA\Response(response="401", description="Invalid credentials")
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      * )
      */
     public function index(Utils $utils)

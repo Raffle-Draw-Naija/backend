@@ -4,11 +4,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
-
 Route::get('/v1/refresh-token',  ['App\Http\Controllers\Auth\AuthController', 'refreshToken'])->middleware(['auth:sanctum',  'ability:'.\App\Enums\TokenAbility::ISSUE_ACCESS_TOKEN->value,]);
 
 Route::get('generate-docs', function (){
     $output = [];
+    \Artisan::call('optimize:clear', $output);
     \Artisan::call('l5-swagger:generate', $output);
     \Artisan::call('storage:link', $output);
 //    \Artisan::call('migrate', $output);

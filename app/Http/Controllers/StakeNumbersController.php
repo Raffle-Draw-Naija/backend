@@ -38,7 +38,7 @@ class StakeNumbersController extends Controller
      *         {"sanctum": {}}
      *     },
      *     @OA\Response(response="200", description="winning tag id",  @OA\JsonContent()),
-     *     @OA\Response(response="401", description="Invalid credentials",  @OA\JsonContent())
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      * )
      */
     public function index(Request $request, Utils $utils)

@@ -82,7 +82,58 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Get category id",
+                        "description": "Get Dashboard Items",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/agent/today-stakes": {
+            "get": {
+                "tags": [
+                    "Agent"
+                ],
+                "summary": "Get Today Stake",
+                "operationId": "b118c21365ef5bd4cc708005d145a3f2",
+                "responses": {
+                    "200": {
+                        "description": "Get Dashboard Items",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation Error",
                         "content": {
                             "application/json": {
                                 "schema": {}
@@ -144,6 +195,53 @@
                         }
                     }
                 }
+            }
+        },
+        "/api/v1/refresh-token": {
+            "get": {
+                "tags": [
+                    "General"
+                ],
+                "operationId": "4a509a8aff1c73e351bf9aac3c97a854",
+                "responses": {
+                    "200": {
+                        "description": "Pin Validate successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/v1/customer/update/profile": {
@@ -218,6 +316,14 @@
                                 "schema": {}
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -260,6 +366,14 @@
                     },
                     "422": {
                         "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
                         "content": {
                             "application/json": {
                                 "schema": {}
@@ -312,6 +426,14 @@
                                 "schema": {}
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -354,6 +476,14 @@
                     },
                     "422": {
                         "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
                         "content": {
                             "application/json": {
                                 "schema": {}
@@ -417,6 +547,14 @@
                                 "schema": {}
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -475,6 +613,14 @@
                                 "schema": {}
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -510,16 +656,16 @@
                             }
                         }
                     },
-                    "401": {
-                        "description": "Invalid credentials",
+                    "422": {
+                        "description": "validation Error",
                         "content": {
                             "application/json": {
                                 "schema": {}
                             }
                         }
                     },
-                    "422": {
-                        "description": "validation Error",
+                    "401": {
+                        "description": "Unauthenticated",
                         "content": {
                             "application/json": {
                                 "schema": {}
@@ -709,7 +855,12 @@
                         "description": "Registration successful"
                     },
                     "401": {
-                        "description": "Invalid credentials"
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -759,7 +910,12 @@
                         "description": "Registration successful"
                     },
                     "401": {
-                        "description": "Invalid credentials"
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -904,8 +1060,19 @@
                     "200": {
                         "description": "Get all Bank Accounts"
                     },
-                    "401": {
+                    "400": {
                         "description": "Invalid credentials"
+                    },
+                    "404": {
+                        "description": "Page Not Found"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -966,7 +1133,12 @@
                         "description": "Get all Bank Accounts"
                     },
                     "401": {
-                        "description": "Invalid credentials"
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -976,19 +1148,109 @@
                 ]
             }
         },
-        "/api/v1/admin/categories": {
+        "/api/v1/customer/account/create": {
+            "post": {
+                "tags": [
+                    "Mobile"
+                ],
+                "operationId": "f96500eebf6f55c2ce99a6d05ad8dc15",
+                "parameters": [
+                    {
+                        "name": "account_name",
+                        "in": "query",
+                        "description": "account_name",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "account_number",
+                        "in": "query",
+                        "description": "account_number",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "bank_code",
+                        "in": "query",
+                        "description": "bank_code",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "amount",
+                        "in": "query",
+                        "description": "amount",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Getting Stake successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/categories": {
             "get": {
                 "tags": [
-                    "Admin"
+                    "General"
                 ],
                 "summary": "Get all Categories",
-                "operationId": "499b0fa3c97856d15aa34ef5e7b7de58",
+                "operationId": "9e975d8e2b6733988615c39b97de2eec",
                 "responses": {
                     "200": {
                         "description": "Get all Categories"
                     },
                     "401": {
-                        "description": "Invalid credentials"
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -1051,14 +1313,6 @@
                             }
                         }
                     },
-                    "401": {
-                        "description": "Invalid credentials",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
                     "404": {
                         "description": "Not Found",
                         "content": {
@@ -1069,6 +1323,14 @@
                     },
                     "422": {
                         "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
                         "content": {
                             "application/json": {
                                 "schema": {}
@@ -1094,14 +1356,19 @@
                     "200": {
                         "description": "Get Stake Items"
                     },
-                    "401": {
-                        "description": "Invalid credentials"
-                    },
                     "404": {
                         "description": "Not Found"
                     },
                     "422": {
                         "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
                         "content": {
                             "application/json": {
                                 "schema": {}
@@ -1127,14 +1394,19 @@
                     "200": {
                         "description": "Get Stake Items"
                     },
-                    "401": {
-                        "description": "Invalid credentials"
-                    },
                     "404": {
                         "description": "Not Found"
                     },
                     "422": {
                         "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
                         "content": {
                             "application/json": {
                                 "schema": {}
@@ -1165,14 +1437,6 @@
                             }
                         }
                     },
-                    "401": {
-                        "description": "Invalid credentials",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
                     "404": {
                         "description": "Not Found",
                         "content": {
@@ -1183,6 +1447,14 @@
                     },
                     "422": {
                         "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
                         "content": {
                             "application/json": {
                                 "schema": {}
@@ -1347,25 +1619,27 @@
                         "schema": {
                             "type": "string"
                         }
-                    },
-                    {
-                        "name": "customer_id",
-                        "in": "query",
-                        "description": "Id of the customer",
-                        "schema": {
-                            "type": "string"
-                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Get Dashboard Items"
-                    },
-                    "401": {
-                        "description": "Invalid credentials"
+                        "description": "Get Dashboard Items",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     },
                     "422": {
                         "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
                         "content": {
                             "application/json": {
                                 "schema": {}
@@ -1454,7 +1728,7 @@
                         }
                     },
                     "401": {
-                        "description": "Invalid credentials",
+                        "description": "Unauthenticated",
                         "content": {
                             "application/json": {
                                 "schema": {}
@@ -1548,6 +1822,14 @@
                                 "schema": {}
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -1598,6 +1880,14 @@
                                 "schema": {}
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -1607,23 +1897,12 @@
                 ]
             }
         },
-        "/api/v1/get-stakes": {
+        "/api/v1/get-all-stakes": {
             "get": {
                 "tags": [
                     "General"
                 ],
-                "operationId": "0b2ff4608d269ccb7e7eef95febc6994",
-                "parameters": [
-                    {
-                        "name": "user_id",
-                        "in": "query",
-                        "description": "user_id",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
+                "operationId": "49cb5e4416be9c2acd3356a23f7b2020",
                 "responses": {
                     "200": {
                         "description": "Getting Stake successful",
@@ -1643,6 +1922,14 @@
                     },
                     "422": {
                         "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
                         "content": {
                             "application/json": {
                                 "schema": {}
@@ -1721,7 +2008,12 @@
                         "description": "List debit transactions"
                     },
                     "401": {
-                        "description": "Invalid credentials"
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -1746,16 +2038,16 @@
                             }
                         }
                     },
-                    "401": {
-                        "description": "Invalid credentials",
+                    "422": {
+                        "description": "validation Error",
                         "content": {
                             "application/json": {
                                 "schema": {}
                             }
                         }
                     },
-                    "422": {
-                        "description": "validation Error",
+                    "401": {
+                        "description": "Unauthenticated",
                         "content": {
                             "application/json": {
                                 "schema": {}
@@ -1782,7 +2074,12 @@
                         "description": "List transactions"
                     },
                     "401": {
-                        "description": "Invalid credentials"
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -1831,6 +2128,14 @@
                                 "schema": {}
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -1852,24 +2157,6 @@
                         "name": "amount",
                         "in": "query",
                         "description": "Amount",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "bank_code",
-                        "in": "query",
-                        "description": "Bank Code",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "account_number",
-                        "in": "query",
-                        "description": "account number",
                         "required": true,
                         "schema": {
                             "type": "string"
@@ -1903,6 +2190,14 @@
                     },
                     "422": {
                         "description": "validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
                         "content": {
                             "application/json": {
                                 "schema": {}
@@ -1949,7 +2244,12 @@
                         "description": "Add Fund"
                     },
                     "401": {
-                        "description": "Invalid credentials"
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -2031,6 +2331,14 @@
                 "responses": {
                     "200": {
                         "description": "Get Machines"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -2068,7 +2376,12 @@
                         }
                     },
                     "401": {
-                        "description": "Invalid credentials"
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -2162,6 +2475,14 @@
                 "responses": {
                     "200": {
                         "description": "Get Tools"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -2183,7 +2504,12 @@
                         "description": "Get all winning tags"
                     },
                     "401": {
-                        "description": "Invalid credentials"
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
                 },
                 "security": [

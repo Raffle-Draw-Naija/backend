@@ -49,9 +49,9 @@ class CustomerStakeController extends Controller
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Response(response="200", description="Get Stake Items",  @OA\JsonContent()),
-     *     @OA\Response(response="401", description="Invalid credentials",  @OA\JsonContent()),
      *     @OA\Response(response="404", description="Not Found",  @OA\JsonContent()),
-     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      *
      * )
      */
@@ -66,7 +66,9 @@ class CustomerStakeController extends Controller
         $stakes = StakePlatform::where("is_close", 0)
                     ->where("category_id", $cat_id)
                     ->where("winning_tags_id", $win_tag_ref)
-                    ->with(["winningTags","categories"])->get();
+                    ->with(["winningTags","categories"])
+                    ->orderBy("created_at", "Desc")
+                    ->get();
         return $utils->message("success", $stakes, 200);
     }
 
@@ -79,9 +81,9 @@ class CustomerStakeController extends Controller
      *         {"sanctum": {}}
      *     },
      *     @OA\Response(response="200", description="Get Stake Items"),
-     *     @OA\Response(response="401", description="Invalid credentials"),
      *     @OA\Response(response="404", description="Not Found"),
-     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      *
      * )
      */
@@ -122,9 +124,9 @@ class CustomerStakeController extends Controller
      *         {"sanctum": {}}
      *     },
      *     @OA\Response(response="200", description="Get Stake Items"),
-     *     @OA\Response(response="401", description="Invalid credentials"),
      *     @OA\Response(response="404", description="Not Found"),
-     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      *
      * )
      */
@@ -167,9 +169,9 @@ class CustomerStakeController extends Controller
      *         {"sanctum": {}}
      *     },
      *     @OA\Response(response="200", description="Get Dashboard Items",  @OA\JsonContent()),
-     *     @OA\Response(response="401", description="Invalid credentials",  @OA\JsonContent()),
      *     @OA\Response(response="404", description="Not Found",  @OA\JsonContent()),
-     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      *
      * )
      */
@@ -392,8 +394,8 @@ class CustomerStakeController extends Controller
      *         {"sanctum": {}}
      *     },
      *     @OA\Response(response="200", description="Get Dashboard Items",  @OA\JsonContent()),
-     *     @OA\Response(response="401", description="Invalid credentials",  @OA\JsonContent()),
-     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent())
+     *     @OA\Response(response="422", description="validation Error", @OA\JsonContent()),
+     *     @OA\Response(response="401", description="Unauthenticated", @OA\JsonContent())
      *
      * )
      */
