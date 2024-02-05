@@ -15,11 +15,11 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => ['*', 'api/*', 'sanctum/csrf-cookie', '/'],
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*','https://agent.raffle-draw.name.ng', 'http://agent.raffle-draw.name.ng'],
+    'allowed_origins' => ['*','https://admin.raffle-draw.name.ng', 'https://agent.raffle-draw.name.ng', 'https://mobile.raffle-draw.name.ng'],
 
     'allowed_origins_patterns' => ['/https?:\/\/raffle-draw\.com.ng\/?\z/'],
 

@@ -670,7 +670,7 @@ class AuthController extends Controller
         $token = PersonalAccessToken::findToken($accessToken);
 
         // Revoke token
-        $token->delete();
+//        $token->delete();
         return $utils->message("success", "User successfully signed out", 200);
     }
 }

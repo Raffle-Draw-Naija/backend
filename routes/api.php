@@ -11,6 +11,7 @@ Route::get('generate-docs', function (){
     \Artisan::call('optimize:clear', $output);
     \Artisan::call('l5-swagger:generate', $output);
     \Artisan::call('storage:link', $output);
+    \Artisan::call('route:cache', $output);
 //    \Artisan::call('migrate', $output);
     dd($output);
 });
